@@ -128,13 +128,34 @@ body{background:var(--bg);display:flex;height:100vh;overflow:hidden;-webkit-font
 .brideSVG path{stroke:#fff}
 .imp-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--bdr);border-radius:8px;margin-bottom:6px;font-size:12px}
 .imp-row .b{font-weight:700}
+.stepper{display:flex;align-items:center}
+.stp{display:flex;align-items:center;gap:8px}
+.stp .n{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid var(--bdr);color:var(--su);background:var(--sur)}
+.stp.done .n{background:var(--gr);border-color:var(--gr);color:#fff}
+.stp.on .n{background:var(--nv);border-color:var(--nv);color:#fff}
+.stp .lb{font-size:11px;font-weight:600;color:var(--su)}
+.stp.on .lb{color:var(--nv)}.stp.done .lb{color:var(--grd)}
+.stp-ln{flex:1;height:2px;background:var(--bdr);margin:0 10px}.stp-ln.done{background:var(--gr)}
+.fsec2{font-size:10px;font-weight:700;color:var(--nv);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--bll)}
+.med-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.med{display:flex;align-items:flex-start;gap:7px;padding:8px 10px;border:1px solid var(--bdr);border-radius:7px;cursor:pointer;font-size:11px;background:var(--sur)}
+.med:hover{border-color:var(--bl);background:var(--bll)}
+.med input{margin-top:1px;accent-color:var(--nv);width:14px;height:14px;flex-shrink:0}
+.med b{font-size:11px}.med small{display:block;color:var(--mu);font-size:9px}
+.sw{position:relative;width:42px;height:24px;flex-shrink:0}.sw input{opacity:0;width:0;height:0}
+.sw .sl{position:absolute;inset:0;background:#cbd2dc;border-radius:24px;cursor:pointer;transition:.2s}
+.sw .sl:before{content:'';position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.sw input:checked+.sl{background:var(--gr)}.sw input:checked+.sl:before{transform:translateX(18px)}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bdr)}.set-row:last-child{border:none}.set-row .n{font-size:13px;font-weight:600}.set-row .d{font-size:11px;color:var(--mu);margin-top:2px}
+.logoBig{width:54px;height:54px;border-radius:13px;background:linear-gradient(135deg,#2f7ed8,#6a3fb5);display:flex;align-items:center;justify-content:center}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 </style>
 </head>
 <body>
 <!-- LOGIN -->
 <div id="login" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0d2038,#1b3a63);display:flex;align-items:center;justify-content:center">
   <div style="background:#fff;border-radius:16px;padding:30px 32px;width:374px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.35)">
-    <div style="text-align:center"><div style="display:inline-flex;align-items:center;gap:9px"><div class="sb-mark" style="width:38px;height:38px"><svg class="brideSVG" viewBox="0 0 64 64" style="width:70%;height:70%" fill="none"><path d="M5 43h54" stroke-width="4" stroke-linecap="round"/><path d="M14 43V24M50 43V24" stroke-width="3" stroke-linecap="round"/><path d="M7 31C19 16 45 16 57 31" stroke-width="3.5" stroke-linecap="round"/><path d="M22 17l-3 26M42 17l3 26M32 15v28" stroke-width="2" stroke-linecap="round" opacity=".8"/></svg></div><div style="text-align:left"><div style="font-size:21px;font-weight:800;color:#0d2038">Jusoor</div><div style="font-size:9px;color:#6b7790;letter-spacing:2px">جسور · SANOFI RSV</div></div></div></div>
+    <div style="text-align:center"><div style="display:inline-flex;align-items:center;gap:9px"><div class="sb-mark jlogo" style="width:38px;height:38px"><svg class="brideSVG" viewBox="0 0 64 64" style="width:70%;height:70%" fill="none"><path d="M5 43h54" stroke-width="4" stroke-linecap="round"/><path d="M14 43V24M50 43V24" stroke-width="3" stroke-linecap="round"/><path d="M7 31C19 16 45 16 57 31" stroke-width="3.5" stroke-linecap="round"/><path d="M22 17l-3 26M42 17l3 26M32 15v28" stroke-width="2" stroke-linecap="round" opacity=".8"/></svg></div><div style="text-align:left"><div style="font-size:21px;font-weight:800;color:#0d2038">Jusoor</div><div style="font-size:9px;color:#6b7790;letter-spacing:2px">جسور · SANOFI RSV</div></div></div></div>
     <div style="font-size:12px;color:#6b7790;text-align:center;margin:14px 0 16px">Infant RSV immunisation platform</div>
     <div style="background:#fff7e6;border:1px solid #f3d699;color:#9a6b00;font-size:10px;border-radius:8px;padding:8px 10px;margin-bottom:14px;line-height:1.5">🔒 Demo environment — 100% synthetic data. Do not enter real patient identifiers.</div>
     <div id="lgForm">
@@ -161,12 +182,13 @@ body{background:var(--bg);display:flex;height:100vh;overflow:hidden;-webkit-font
 
 <!-- SIDEBAR -->
 <aside class="sb">
-  <div class="sb-logo"><div class="sb-mark"><svg class="brideSVG" viewBox="0 0 64 64" style="width:64%;height:64%" fill="none"><path d="M5 43h54" stroke-width="4" stroke-linecap="round"/><path d="M14 43V24M50 43V24" stroke-width="3" stroke-linecap="round"/><path d="M7 31C19 16 45 16 57 31" stroke-width="3.5" stroke-linecap="round"/><path d="M22 17l-3 26M42 17l3 26M32 15v28" stroke-width="2" stroke-linecap="round" opacity=".8"/></svg></div><div><div class="sb-name">Jusoor</div><div class="sb-sub">جسور · Sanofi RSV</div></div></div>
+  <div class="sb-logo"><div class="sb-mark jlogo"><svg class="brideSVG" viewBox="0 0 64 64" style="width:64%;height:64%" fill="none"><path d="M5 43h54" stroke-width="4" stroke-linecap="round"/><path d="M14 43V24M50 43V24" stroke-width="3" stroke-linecap="round"/><path d="M7 31C19 16 45 16 57 31" stroke-width="3.5" stroke-linecap="round"/><path d="M22 17l-3 26M42 17l3 26M32 15v28" stroke-width="2" stroke-linecap="round" opacity=".8"/></svg></div><div><div class="sb-name">Jusoor</div><div class="sb-sub">جسور · Sanofi RSV</div></div></div>
   <div class="sb-role"><div class="sb-role-dot"></div><div class="sb-role-name" id="sbRole">Immunisation Coordinator · Riyadh</div></div>
   <div class="sb-scroll">
     <div class="sb-sec">Programme</div>
     <div class="si on" data-v="dash"><span class="si-ic">▦</span>Dashboard<span class="si-b bR" id="bDash">0</span></div>
     <div class="si" data-v="import"><span class="si-ic">⬇</span>Birth Data Import<span class="si-b bA" id="bImp">NEW</span></div>
+    <div class="si" data-v="enrol"><span class="si-ic">＋</span>Enrol Infant</div>
     <div class="si" data-v="registry"><span class="si-ic">≣</span>Infant Registry<span class="si-b bB" id="bReg">0</span></div>
     <div class="si" data-v="huddle"><span class="si-ic">☀</span>Daily Huddle<span class="si-b bA" id="bHud">0</span></div>
     <div class="si" data-v="tasks"><span class="si-ic">✓</span>Care Tasks<span class="si-b bR" id="bTask">0</span></div>
@@ -236,6 +258,18 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
         <div class="flag fG2">Queues a mother-outreach Care Task per eligible infant</div>
       </div>
       <div class="card cp"><div class="ct" style="margin-bottom:8px">🇸🇦 Saudi RSV policy (nirsevimab)</div><div class="note" style="line-height:1.7"><b>First season:</b> all infants &lt;8 months — one dose (<b>&lt;5 kg → 50 mg</b>, <b>≥5 kg → 100 mg</b>).<br><br><b>Second season:</b> high-risk children 8–19 months — one 200 mg dose.<br><br><b>Season:</b> ~October to March. SFDA-approved Feb 2024.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ENROL INFANT -->
+<div class="view" id="v-enrol">
+  <div class="card cp" style="margin-bottom:14px"><div class="stepper" id="stepper"></div></div>
+  <div class="gx">
+    <div class="card cp" id="wizBody"></div>
+    <div>
+      <div class="card cp" id="liveRisk" style="margin-bottom:14px"></div>
+      <div class="card cp"><div class="ct" style="margin-bottom:8px">🇸🇦 Saudi RSV policy (nirsevimab)</div><div class="note" style="line-height:1.7"><b>First season:</b> infants &lt;8 months — one dose (<b>&lt;5 kg → 50 mg</b>, <b>≥5 kg → 100 mg</b>).<br><br><b>Second season:</b> high-risk 8–19 months — 200 mg.<br><br><b>Season:</b> ~October to March — best given before the season opens.</div></div>
     </div>
   </div>
 </div>
@@ -319,10 +353,29 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
 <!-- SETTINGS -->
 <div class="view" id="v-settings">
   <div class="g2">
-    <div class="card cp"><div class="ct" style="margin-bottom:12px">Branding</div><div style="display:flex;align-items:center;gap:14px"><div class="sb-mark" style="width:50px;height:50px"><svg class="brideSVG" viewBox="0 0 64 64" style="width:62%;height:62%" fill="none"><path d="M5 43h54" stroke-width="4" stroke-linecap="round"/><path d="M14 43V24M50 43V24" stroke-width="3" stroke-linecap="round"/><path d="M7 31C19 16 45 16 57 31" stroke-width="3.5" stroke-linecap="round"/></svg></div><div><div style="font-weight:800">Jusoor × Sanofi</div><div style="font-size:11px;color:var(--mu)">RSV Infant Immunisation</div></div></div></div>
-    <div class="card cp"><div class="ct" style="margin-bottom:12px">AI proxy (optional)</div><div class="fg"><label>External LLM endpoint</label><input placeholder="https://jusoor-ai.<acct>.workers.dev"></div><div class="fg"><label>API key</label><input type="password" placeholder="optional — local engine active"></div><button class="btn btn-p btn-sm" onclick="toast('Saved ✓','Local engine active')">Save</button></div>
-    <div class="card cp"><div class="ct" style="margin-bottom:12px">Birth feed</div><div class="sc"><b>Auto-import schedule</b><span class="m">Daily 06:00</span></div><div class="sc"><b>Source</b><span class="m">Military Hospital Riyadh</span></div><div class="sc"><b>Cohort start</b><span class="m">April 2026</span></div></div>
-    <div class="card cp"><div class="ct" style="margin-bottom:12px">Data residency</div><div class="note">🟢 All processing on-device · Demo Mode · Synthetic Data · no data leaves Saudi Arabia.</div></div>
+    <div class="card cp"><div class="ct" style="margin-bottom:12px">Branding</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px"><div class="logoBig jlogo"><svg class="brideSVG" viewBox="0 0 64 64" style="width:62%;height:62%" fill="none"><path d="M5 43h54" stroke-width="4" stroke-linecap="round"/><path d="M14 43V24M50 43V24" stroke-width="3" stroke-linecap="round"/><path d="M7 31C19 16 45 16 57 31" stroke-width="3.5" stroke-linecap="round"/><path d="M22 17l-3 26M42 17l3 26M32 15v28" stroke-width="2" stroke-linecap="round" opacity=".8"/></svg></div><div><div style="font-weight:800;font-size:15px">Jusoor × Sanofi</div><div style="font-size:11px;color:var(--mu)">RSV Infant Immunisation</div></div></div>
+      <div class="fg" style="margin-top:10px"><label>Programme name</label><input value="RSV Infant Immunisation Programme"></div>
+      <div class="fg"><label>Replace logo (PNG/SVG)</label><input type="file" accept="image/*" onchange="uploadLogo(this)"></div>
+    </div>
+    <div class="card cp"><div class="ct" style="margin-bottom:12px">AI engine</div>
+      <div class="set-row"><div><div class="n">Local rule engine</div><div class="d">Eligibility &amp; dosing in-browser · no data leaves device</div></div><label class="sw"><input type="checkbox" checked disabled><span class="sl"></span></label></div>
+      <div class="set-row"><div><div class="n">External AI proxy</div><div class="d">Cloudflare Worker for heavy processing</div></div><label class="sw"><input type="checkbox"><span class="sl"></span></label></div>
+      <div class="fg" style="margin-top:10px"><label>AI proxy endpoint</label><input placeholder="https://jusoor-ai.<acct>.workers.dev"></div>
+      <div class="fg"><label>AI API key</label><input type="password" placeholder="optional — local engine active"></div>
+      <button class="btn btn-p btn-sm" onclick="toast('AI settings saved ✓','Local engine active')">Save AI settings</button>
+    </div>
+    <div class="card cp"><div class="ct" style="margin-bottom:12px">Post-dose side effects (AEFI)</div>
+      <div class="set-row"><div><div class="n">Symptom follow-up</div><div class="d">Auto-message the mother after each dose</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
+      <div class="set-row"><div><div class="n">Auto-escalate severe symptoms</div><div class="d">High fever, rash, breathing difficulty → nurse call</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
+      <div class="fg" style="margin-top:10px"><label>Follow-up timing (after dose)</label><select><option>Day 1 and Day 3</option><option>Day 3 only</option></select></div>
+    </div>
+    <div class="card cp"><div class="ct" style="margin-bottom:12px">Birth feed &amp; integrations</div>
+      <div class="set-row"><div><div class="n">Military Hospital Riyadh feed</div><div class="d">Daily 06:00 · cohort from April 2026</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
+      <div class="set-row"><div><div class="n">WhatsApp Business API</div><div class="d">Mother outreach</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
+      <div class="set-row"><div><div class="n">NPHIES / Raqeem</div><div class="d">Not used (phase later)</div></div><label class="sw"><input type="checkbox"><span class="sl"></span></label></div>
+      <div class="note" style="margin-top:10px">🟢 Demo Mode · Synthetic Data · all processing on-device · no data leaves Saudi Arabia.</div>
+    </div>
   </div>
 </div>
 
@@ -407,11 +460,12 @@ function makeInfant(i){
     f,st:sm.st,sb:sm.sb,pri:f==='none'&&a.elig?'wU':sm.pri,act:sm.act,
     elig:a.elig,basis:a.basis,dose:a.dose,season:a.season,score:a.score,tier:a.tier,ageNow:a.ageNow,disc:[],allergy:ch(.1)?'—':'No known allergies'};
 }
-for(let i=0;i<44;i++)infants.push(makeInfant(i));
+for(let i=0;i<50;i++)infants.push(makeInfant(i));
 
 /* ===== Nav ===== */
 const TT={dash:['Dashboard','RSV infant immunisation · nirsevimab (Beyfortus) · Riyadh'],
 import:['Birth Data Import','Ingest births from Military Hospital Riyadh — the first job'],
+enrol:['Enrol Infant','Add a new delivery or manual entry · live AI eligibility'],
 registry:['Infant Registry','Born since Apr 2026 · mother-linked'],
 huddle:['Daily Huddle','Infants due before the RSV season'],
 tasks:['Care Tasks','Mother outreach & dosing queue'],
@@ -423,7 +477,7 @@ settings:['Settings','Branding · AI · data feed · residency']};
 function show(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');
   document.querySelectorAll('.si').forEach(s=>s.classList.toggle('on',s.dataset.v===v));
   document.getElementById('tbT').textContent=TT[v][0];document.getElementById('tbS').textContent=TT[v][1];
-  document.querySelector('.content').scrollTop=0;if(v==='bot')botRestart();}
+  document.querySelector('.content').scrollTop=0;if(v==='bot')botRestart();if(v==='enrol')renderWiz();}
 document.querySelectorAll('.si').forEach(s=>s.onclick=()=>show(s.dataset.v));
 function toast(m,s){const t=document.getElementById('toast');document.getElementById('t-main').textContent=m;document.getElementById('t-sub').textContent=s||'';t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 
@@ -600,8 +654,73 @@ const B={start(){chat.innerHTML='';typing(()=>{add('السلام عليكم 👋
  end(){typing(()=>{add('شكراً لتواصلكم مع جسور 🤍 صحة طفلكم تهمنا.','bot');opts.innerHTML='<button onclick="botRestart()">↻ ابدأ من جديد</button>';});}};
 function botRestart(){B.start();}
 
+/* ===== Logo upload ===== */
+function applyLogo(url){document.querySelectorAll('.jlogo').forEach(el=>{el.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" alt="logo">';});}
+function uploadLogo(inp){const f=inp.files&&inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=e=>{applyLogo(e.target.result);try{localStorage.setItem('rsv_logo',e.target.result);}catch(x){}toast('Logo updated ✓','Applied to header & login');};rd.readAsDataURL(f);}
+function restoreLogo(){try{const lg=localStorage.getItem('rsv_logo');if(lg)applyLogo(lg);}catch(e){}}
+
+/* ===== Enrol Infant wizard (live RSV AI) ===== */
+const WSTEPS=['Newborn','Risk factors','Immunisation','AI Review'];
+const SOURCES=['Military Hospital Riyadh','Maternity & Children, Riyadh','King Fahad Medical City','Walk-in / referral'];
+const wiz={step:1,name:'',mrn:'',dob:'',sex:'Male',weight:'',gest:'38',source:SOURCES[0],mother:'',phone:'',risk:[],allergy:'No known allergies',hasDose:'no',doseDate:''};
+function setW(k,v){wiz[k]=v;updateLive();}
+function setWR(k,v){wiz[k]=v;renderWiz();}
+function toggleRisk(k,el){if(el.checked){if(!wiz.risk.includes(k))wiz.risk.push(k);}else{wiz.risk=wiz.risk.filter(x=>x!==k);}updateLive();}
+function renderStepper(){document.getElementById('stepper').innerHTML=WSTEPS.map((s,i)=>{const n=i+1,cls=wiz.step>n?'done':wiz.step===n?'on':'';return `<div class="stp ${cls}"><div class="n">${wiz.step>n?'✓':n}</div><div class="lb">${s}</div></div>`+(i<3?`<div class="stp-ln ${wiz.step>n?'done':''}"></div>`:'');}).join('');}
+function fld(l,h){return `<div class="fg"><label>${l}</label>${h}</div>`;}
+function updateLive(){const el=document.getElementById('liveRisk');if(!el)return;
+  if(!wiz.dob){el.innerHTML='<div class="ct" style="margin-bottom:10px">Live AI assessment</div><div style="font-size:36px;font-weight:900;color:var(--su)">—</div><div style="font-size:11px;color:var(--mu)">Enter date of birth &amp; weight</div>';return;}
+  const w=parseFloat(wiz.weight)||4,a=rsvAssess({dob:wiz.dob,weight:w,gest:parseInt(wiz.gest)||38,risk:wiz.risk});
+  const col=a.tier==='High'?'var(--rd)':a.tier==='Moderate'?'var(--am)':'var(--gr)';
+  el.innerHTML=`<div class="ct" style="margin-bottom:10px">Live AI assessment</div>
+   <div style="display:flex;align-items:center;gap:16px"><div style="font-size:36px;font-weight:900;color:${col}">${a.score}%</div><div><div style="font-weight:800;color:${col}">${a.tier} risk</div><div style="font-size:10px;color:var(--mu)">age ${a.ageNow} mo · updates live</div></div></div>
+   <div style="margin-top:12px">${a.elig?'<span class="chip ch-g">✅ Eligible — '+a.basis+'</span>':'<span class="chip ch-s">Not eligible — '+a.basis+'</span>'}</div>
+   ${a.elig?`<div style="font-size:12px;color:var(--mu);margin-top:8px">Recommended dose: <b style="color:var(--tx)">${a.dose} nirsevimab (IM)</b></div>`:''}`;}
+function renderWiz(){renderStepper();let h='';
+  if(wiz.step===1){
+    h=`<div class="fsec2">Newborn details</div>
+    <div class="g2">${fld('Full name',`<input value="${wiz.name}" oninput="setW('name',this.value)" placeholder="e.g. Faisal Al-Harbi">`)}${fld('MRN / birth ID',`<input value="${wiz.mrn}" oninput="setW('mrn',this.value)" placeholder="MH-XXXXX">`)}</div>
+    <div class="g3">${fld('Date of birth',`<input type="date" value="${wiz.dob}" onchange="setW('dob',this.value)">`)}${fld('Sex',`<select onchange="setW('sex',this.value)"><option ${wiz.sex==='Male'?'selected':''}>Male</option><option ${wiz.sex==='Female'?'selected':''}>Female</option></select>`)}${fld('Birth weight (kg)',`<input type="number" step="0.1" value="${wiz.weight}" oninput="setW('weight',this.value)" placeholder="e.g. 4.2">`)}</div>
+    <div class="g3">${fld('Gestational age (wk)',`<select onchange="setW('gest',this.value)">${Array.from({length:11},(_,k)=>30+k).map(n=>`<option ${String(wiz.gest)===String(n)?'selected':''}>${n}</option>`).join('')}</select>`)}${fld('Source / hospital',`<select onchange="setW('source',this.value)">${SOURCES.map(s=>`<option ${wiz.source===s?'selected':''}>${s}</option>`).join('')}</select>`)}<div></div></div>
+    <div class="g2">${fld('Mother name',`<input value="${wiz.mother}" oninput="setW('mother',this.value)" placeholder="e.g. أم فيصل">`)}${fld('Mother phone',`<input value="${wiz.phone}" oninput="setW('phone',this.value)" placeholder="+9665XXXXXXX">`)}</div>`;
+  } else if(wiz.step===2){
+    h=`<div class="fsec2">Risk factors</div><div style="font-size:11px;color:var(--mu);margin-bottom:8px">High-risk infants are prioritised and may qualify for a second-season dose.</div>
+    <div class="med-grid">${Object.keys(HIGHRISK).map(k=>`<label class="med"><input type="checkbox" ${wiz.risk.includes(k)?'checked':''} onchange="toggleRisk('${k}',this)"><div><b>${HIGHRISK[k]}</b></div></label>`).join('')}</div>
+    <div class="g2" style="margin-top:12px">${fld('Allergy',`<select onchange="setW('allergy',this.value)"><option>No known allergies</option><option>Egg</option><option>Latex</option><option>Previous reaction</option></select>`)}<div></div></div>`;
+  } else if(wiz.step===3){
+    h=`<div class="fsec2">Immunisation status</div>
+    <div class="g2">${fld('Received nirsevimab?',`<select onchange="setWR('hasDose',this.value)"><option value="no" ${wiz.hasDose==='no'?'selected':''}>No — not given</option><option value="booked" ${wiz.hasDose==='booked'?'selected':''}>Appointment booked</option><option value="done" ${wiz.hasDose==='done'?'selected':''}>Given</option></select>`)}${wiz.hasDose==='done'?fld('Date given',`<input type="date" value="${wiz.doseDate}" onchange="setW('doseDate',this.value)">`):'<div></div>'}</div>
+    <div class="note">The recommended dose is set automatically from the birth weight (<b>&lt;5 kg → 50 mg</b>, <b>≥5 kg → 100 mg</b>).</div>`;
+  } else {
+    const w=parseFloat(wiz.weight)||4,a=rsvAssess({dob:wiz.dob,weight:w,gest:parseInt(wiz.gest)||38,risk:wiz.risk});
+    const cls=a.tier==='High'?'rH':a.tier==='Moderate'?'rM':'rL';
+    const msg=a.elig?`عزيزتي ${wiz.mother||'الأم'} 👋 طفلكم مؤهل لتطعيم الوقاية من الفيروس المخلوي (نيرسيفيماب ${a.dose}) قبل الموسم. نحجز لكم موعداً؟`:'شكراً 🤍 سنبقيكم على اطلاع بالمواعيد المناسبة لعمر طفلكم.';
+    h=`<div class="fsec2">AI review & enrolment</div>
+    <div class="card cp" style="border-top:3px solid ${a.elig?'var(--gr)':'var(--su)'}"><div style="font-size:15px;font-weight:800;color:${a.elig?'var(--grd)':'var(--tx)'};margin-bottom:8px">${a.elig?'✅ Eligible for nirsevimab':'Not eligible this season'}</div>
+    <div class="sc"><b>Infant</b><span class="m">${wiz.name||'—'} · ${wiz.mrn||'—'}</span></div>
+    <div class="sc"><b>Basis</b><span class="m">${a.basis}</span></div>
+    ${a.elig?`<div class="sc"><b>Dose</b><span class="m">${a.dose} nirsevimab (IM)</span></div><div class="sc"><b>AI risk</b><span class="m"><span class="tag ${cls}">${a.tier} · ${a.score}/100</span></span></div>`:''}
+    <div class="sc"><b>Mother</b><span class="m">${wiz.mother||'—'} · ${wiz.phone||'—'}</span></div></div>
+    <div class="ai" style="margin-top:12px"><div class="ai-bt">Suggested WhatsApp message to the mother</div><div class="ar" style="font-size:13px;line-height:1.7">${msg}</div></div>`;
+  }
+  h+=`<div style="display:flex;justify-content:space-between;margin-top:16px"><button class="btn btn-o" onclick="wizBack()" ${wiz.step===1?'style="visibility:hidden"':''}>← Back</button>${wiz.step<4?'<button class="btn btn-p" onclick="wizNext()">Continue →</button>':'<button class="btn btn-g" onclick="enrolNow()">＋ Add to registry</button>'}</div>`;
+  document.getElementById('wizBody').innerHTML=h;updateLive();}
+function wizNext(){if(wiz.step===1&&(!wiz.name||!wiz.dob||!wiz.weight)){toast('Enter name, DOB and weight');return;}wiz.step=Math.min(4,wiz.step+1);renderWiz();}
+function wizBack(){wiz.step=Math.max(1,wiz.step-1);renderWiz();}
+function enrolNow(){
+  if(!wiz.name||!wiz.dob||!wiz.weight){toast('Name, DOB and weight required');return;}
+  const id=infants.length,w=parseFloat(wiz.weight)||4,a=rsvAssess({dob:wiz.dob,weight:w,gest:parseInt(wiz.gest)||38,risk:wiz.risk});
+  const fkey=wiz.hasDose==='done'?'done':wiz.hasDose==='booked'?'booked':'none',sm=statusMap(fkey);
+  infants.push({id,n:wiz.name,en:wiz.name,sex:wiz.sex==='Female'?'F':'M',dob:wiz.dob,weight:w,gest:parseInt(wiz.gest)||38,risk:wiz.risk.slice(),
+    mother:wiz.mother||('أم '+wiz.name.split(' ')[0]),phone:wiz.phone||'+9665XXXXXXX',mrn:wiz.mrn||('MH-'+(20500+id)),source:wiz.source,
+    f:fkey,st:sm.st,sb:sm.sb,pri:a.elig&&fkey==='none'?'wU':sm.pri,act:sm.act,
+    elig:a.elig,basis:a.basis,dose:a.dose,season:a.season,score:a.score,tier:a.tier,ageNow:a.ageNow,disc:[],allergy:wiz.allergy});
+  if(a.elig&&fkey==='none')addTodo('Contact mother — book '+a.dose+' nirsevimab','call','Coordinator',id);
+  renderReg();refreshMetrics();renderTasks();renderMessages();toast('Infant enrolled ✓',wiz.name+(a.elig?' · '+a.dose:''));
+  Object.assign(wiz,{step:1,name:'',mrn:'',dob:'',weight:'',mother:'',phone:'',risk:[],hasDose:'no',doseDate:''});renderWiz();show('registry');}
+
 /* ===== init ===== */
-renderReg();refreshMetrics();renderHuddle();renderTasks();renderMessages();renderBarriers();renderKB();botRestart();restoreSession();
+renderReg();refreshMetrics();renderHuddle();renderTasks();renderMessages();renderBarriers();renderKB();botRestart();renderWiz();restoreSession();restoreLogo();
 </script>
 </body>
 </html>
