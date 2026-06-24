@@ -223,7 +223,7 @@ body{background:var(--bg);display:flex;height:100vh;overflow:hidden;-webkit-font
     <div class="kpi" style="--kc:var(--te)" onclick="show('registry')"><div class="kl">Eligible infants</div><div class="kv" id="kElig">0</div><div class="ks">for nirsevimab</div></div>
     <div class="kpi" style="--kc:var(--gr)"><div class="kl">Immunised</div><div class="kv" id="kImm">0</div><div class="ks" id="kImmS"></div></div>
     <div class="kpi" style="--kc:var(--rd)" onclick="show('huddle')"><div class="kl">Due before season</div><div class="kv" style="color:var(--rd)" id="kDue">0</div><div class="ks">not yet dosed</div></div>
-    <div class="kpi" style="--kc:var(--am)" onclick="show('tasks')"><div class="kl">Mothers to contact</div><div class="kv" style="color:var(--am)" id="kMom">0</div><div class="ks">outreach pending</div></div>
+    <div class="kpi" style="--kc:var(--am)" onclick="show('tasks')"><div class="kl">Caregivers to contact</div><div class="kv" style="color:var(--am)" id="kMom">0</div><div class="ks">outreach pending</div></div>
   </div>
   <div class="g2" style="margin-bottom:14px">
     <div class="card cp"><div class="ch"><div><div class="ct">Coverage build-up</div><div class="cs">Cumulative infants immunised vs eligible</div></div></div><div style="height:210px"><canvas id="covChart"></canvas></div></div>
@@ -249,7 +249,7 @@ body{background:var(--bg);display:flex;height:100vh;overflow:hidden;-webkit-font
   <div class="gx">
     <div class="card cp">
       <div class="fsec">Import birth records — Military Hospital Riyadh</div>
-      <div class="note" style="margin-bottom:12px">Paste the birth extract (one infant per line: <b>Name, MRN, DOB (YYYY-MM-DD), Weight kg, Mother phone</b>) or load the demo batch. The AI engine de-duplicates against the registry, computes eligibility and the weight-based nirsevimab dose, and queues mother outreach.</div>
+      <div class="note" style="margin-bottom:12px">Paste the birth extract (one infant per line: <b>Name, MRN, DOB (YYYY-MM-DD), Weight kg, Caregiver phone</b>) or load the demo batch. The AI engine de-duplicates against the registry, computes eligibility and the weight-based nirsevimab dose, and queues caregiver outreach.</div>
       <textarea id="impBox" rows="8" style="width:100%;font-family:monospace;font-size:12px;border:1px solid var(--bdr);border-radius:8px;padding:10px" placeholder="Faisal Al-Harbi, MH-10231, 2026-05-12, 4.2, +9665XXXXXXX
 Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
       <div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-b btn-sm" onclick="loadDemoBatch()">⬇ Load demo batch (Military Hospital)</button><button class="btn btn-g btn-sm" onclick="processImport()">Process &amp; add to registry</button></div>
@@ -260,7 +260,7 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
         <div class="flag fG2">De-duplicates by MRN against the registry</div>
         <div class="flag fG2">Computes eligibility: &lt;8 months = first-season dose</div>
         <div class="flag fY2">Weight-based dose: &lt;5 kg → 50 mg · ≥5 kg → 100 mg</div>
-        <div class="flag fG2">Queues a mother-outreach Care Task per eligible infant</div>
+        <div class="flag fG2">Queues a caregiver-outreach Care Task per eligible infant</div>
       </div>
       <div class="card cp"><div class="ct" style="margin-bottom:8px">🇸🇦 Saudi RSV policy (nirsevimab)</div><div class="note" style="line-height:1.7"><b>First season:</b> all infants &lt;8 months — one dose (<b>&lt;5 kg → 50 mg</b>, <b>≥5 kg → 100 mg</b>).<br><br><b>Second season:</b> high-risk children 8–19 months — one 200 mg dose.<br><br><b>Season:</b> ~October to March. SFDA-approved Feb 2024.</div></div>
     </div>
@@ -306,10 +306,10 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
 <!-- TASKS -->
 <div class="view" id="v-tasks">
   <div class="g2" style="margin-bottom:14px">
-    <div class="kpi" style="--kc:var(--rd)"><div class="kl">Open tasks</div><div class="kv" style="color:var(--rd)" id="taskN">0</div><div class="ks">mother outreach &amp; dosing</div></div>
+    <div class="kpi" style="--kc:var(--rd)"><div class="kl">Open tasks</div><div class="kv" style="color:var(--rd)" id="taskN">0</div><div class="ks">caregiver outreach &amp; dosing</div></div>
     <div class="kpi" style="--kc:var(--gr)"><div class="kl">Completed today</div><div class="kv" style="color:var(--grd)" id="taskDoneN">0</div><div class="ks">resolved</div></div>
   </div>
-  <div class="card cp"><div class="ct" style="margin-bottom:3px">Care-team to-do list</div><div class="cs" style="margin-bottom:12px">Mother-contact, dosing and follow-up actions — grouped by infant, no duplicates.</div><div id="taskList"></div></div>
+  <div class="card cp"><div class="ct" style="margin-bottom:3px">Care-team to-do list</div><div class="cs" style="margin-bottom:12px">Caregiver-contact, dosing and follow-up actions — grouped by infant, no duplicates.</div><div id="taskList"></div></div>
 </div>
 
 <!-- BOT -->
@@ -319,7 +319,7 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
       <div class="phone"><div class="phead"><div class="av">🍼</div><div><div style="font-size:12px;font-weight:700">مساعد جسور لتطعيم الأطفال</div><div style="font-size:10px;opacity:.8">متصل · ذكاء اصطناعي</div></div></div><div class="chat" id="chat"></div><div class="opts" id="opts"></div></div>
     </div>
     <div><div class="card cp" style="margin-bottom:14px"><div class="ct" style="margin-bottom:10px">Bot stats · today</div>
-      <div class="sc"><b>Mothers contacted</b><span class="m">214</span></div><div class="sc"><b>Appointments booked</b><span class="m">163</span></div><div class="sc"><b>Eligibility confirmed</b><span class="m">198</span></div><div class="sc"><b>Escalated to nurse</b><span class="m">11</span></div></div>
+      <div class="sc"><b>Caregivers contacted</b><span class="m">214</span></div><div class="sc"><b>Appointments booked</b><span class="m">163</span></div><div class="sc"><b>Eligibility confirmed</b><span class="m">198</span></div><div class="sc"><b>Escalated to nurse</b><span class="m">11</span></div></div>
       <div class="card cp"><div class="ct" style="margin-bottom:8px">Local knowledge base (Arabic)</div><div class="cs" style="margin-bottom:8px">🔒 served on-device · no data leaves Saudi Arabia</div><div id="botKB"></div></div>
     </div>
   </div>
@@ -340,8 +340,8 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
 
 <!-- BARRIERS -->
 <div class="view" id="v-barriers">
-  <div class="card cp" style="margin-bottom:14px"><div class="ch"><div><div class="ct">Collected barriers — live</div><div class="cs">Why mothers delay/decline · AI routes each to a Care Task + tailored education</div></div></div><div id="barFeed"></div></div>
-  <div class="card cp"><div class="ct" style="margin-bottom:10px">Why mothers decline or delay</div><div style="height:240px"><canvas id="barrierChart"></canvas></div></div>
+  <div class="card cp" style="margin-bottom:14px"><div class="ch"><div><div class="ct">Collected barriers — live</div><div class="cs">Why caregivers delay/decline · AI routes each to a Care Task + tailored education</div></div></div><div id="barFeed"></div></div>
+  <div class="card cp"><div class="ct" style="margin-bottom:10px">Why caregivers decline or delay</div><div style="height:240px"><canvas id="barrierChart"></canvas></div></div>
 </div>
 
 <!-- INTEGRATIONS -->
@@ -353,7 +353,7 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
       <div class="sc"><b>Maternity &amp; Children Hospital</b><span class="m"><span class="chip ch-a">Onboarding</span></span></div>
       <div class="sc"><b>NPHIES / Raqeem</b><span class="m"><span class="chip ch-s">Not used (phase later)</span></span></div>
     </div>
-    <div class="card cp"><div class="ct" style="margin-bottom:10px">AI engine</div><div class="note" style="line-height:1.7"><b>🖥 Local rule engine (default):</b> eligibility, weight-based dosing and risk run in the browser — no infant data leaves the device or Saudi Arabia.<br><br><b>☁ Optional external LLM:</b> can be linked later for open-ended mother questions; only de-identified features would be sent.</div></div>
+    <div class="card cp"><div class="ct" style="margin-bottom:10px">AI engine</div><div class="note" style="line-height:1.7"><b>🖥 Local rule engine (default):</b> eligibility, weight-based dosing and risk run in the browser — no infant data leaves the device or Saudi Arabia.<br><br><b>☁ Optional external LLM:</b> can be linked later for open-ended caregiver questions; only de-identified features would be sent.</div></div>
   </div>
   <div class="card cp"><div class="ct" style="margin-bottom:10px">First-job KPIs vs target</div><div class="tbl-w"><table class="tbl"><thead><tr><th>Metric</th><th>Target</th><th>Now</th><th></th></tr></thead><tbody>
     <tr><td>Births ingested (since Apr)</td><td>100%</td><td id="kpiB">—</td><td><span class="chip ch-g">On track</span></td></tr>
@@ -378,13 +378,13 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
       <button class="btn btn-p btn-sm" onclick="toast('AI settings saved ✓','Local engine active')">Save AI settings</button>
     </div>
     <div class="card cp"><div class="ct" style="margin-bottom:12px">Post-dose side effects (AEFI)</div>
-      <div class="set-row"><div><div class="n">Symptom follow-up</div><div class="d">Auto-message the mother after each dose</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
+      <div class="set-row"><div><div class="n">Symptom follow-up</div><div class="d">Auto-message the caregiver after each dose</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
       <div class="set-row"><div><div class="n">Auto-escalate severe symptoms</div><div class="d">High fever, rash, breathing difficulty → nurse call</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
       <div class="fg" style="margin-top:10px"><label>Follow-up timing (after dose)</label><select><option>Day 1 and Day 3</option><option>Day 3 only</option></select></div>
     </div>
     <div class="card cp"><div class="ct" style="margin-bottom:12px">Birth feed &amp; integrations</div>
       <div class="set-row"><div><div class="n">Military Hospital Riyadh feed</div><div class="d">Daily 06:00 · cohort from April 2026</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
-      <div class="set-row"><div><div class="n">WhatsApp Business API</div><div class="d">Mother outreach</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
+      <div class="set-row"><div><div class="n">WhatsApp Business API</div><div class="d">Caregiver outreach</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
       <div class="set-row"><div><div class="n">NPHIES / Raqeem</div><div class="d">Not used (phase later)</div></div><label class="sw"><input type="checkbox"><span class="sl"></span></label></div>
       <div class="note" style="margin-top:10px">🟢 Demo Mode · Synthetic Data · all processing on-device · no data leaves Saudi Arabia.</div>
     </div>
@@ -433,10 +433,10 @@ function rsvAssess(inf){
   return {ageNow:ageNow.toFixed(1),ageSeason:ageSeason.toFixed(1),elig,basis,dose,season,score,tier};
 }
 function rsvAlerts(inf){const a=rsvAssess(inf),A=[];
-  if(a.elig&&inf.f==='none')A.push({t:'Eligible & undosed — contact mother to book before the season ('+a.dose+')',s:'r'});
+  if(a.elig&&inf.f==='none')A.push({t:'Eligible & undosed — contact caregiver to book before the season ('+a.dose+')',s:'r'});
   if(inf.risk.length&&inf.f==='none')A.push({t:'High-risk infant ('+inf.risk.map(r=>HIGHRISK[r]).join(', ')+') — prioritise',s:'r'});
   if(inf.f==='done')A.push({t:'Nirsevimab given — protected for this RSV season',s:'g'});
-  if(inf.f==='booked')A.push({t:'Appointment booked — send a reminder to the mother',s:'a'});
+  if(inf.f==='booked')A.push({t:'Appointment booked — send a reminder to the caregiver',s:'a'});
   if(!a.elig)A.push({t:a.basis,s:'a'});
   if(!A.length)A.push({t:'No active alerts',s:'g'});
   return A;}
@@ -445,7 +445,8 @@ function rsvAlerts(inf){const a=rsvAssess(inf),A=[];
 const FN_M=[['فيصل','Faisal'],['عبدالله','Abdullah'],['محمد','Mohammed'],['سلطان','Sultan'],['ناصر','Nasser'],['عمر','Omar'],['يزيد','Yazid'],['تركي','Turki']];
 const FN_F=[['ليان','Layan'],['جوري','Jouri'],['ميرا','Mira'],['شهد','Shahd'],['لمى','Lama'],['رغد','Raghad'],['ريما','Reema'],['دانة','Dana']];
 const LN=[['الحربي','Al-Harbi'],['العتيبي','Al-Otaibi'],['القحطاني','Al-Qahtani'],['الشمري','Al-Shammari'],['الدوسري','Al-Dosari'],['الغامدي','Al-Ghamdi'],['الزهراني','Al-Zahrani'],['المطيري','Al-Mutairi']];
-const MOTHERS=['أم فيصل','أم ليان','أم محمد','أم جوري','أم عبدالله','أم شهد','أم عمر','أم لمى'];
+const ADULT_F=[['سارة','Sara'],['نورة','Noura'],['هلا','Hala'],['ريم','Reem'],['منى','Mona'],['عائشة','Aisha'],['لطيفة','Latifa'],['هدى','Huda']];
+const ADULT_M=[['أحمد','Ahmed'],['خالد','Khalid'],['سعود','Saud'],['فهد','Fahad'],['عمر','Omar'],['ماجد','Majed'],['يوسف','Yousef'],['طلال','Talal']];
 let _s=20260624;function rnd(){_s=(_s*9301+49297)%233280;return _s/233280;}
 function pk(a){return a[Math.floor(rnd()*a.length)];}
 function ch(p){return rnd()<p;}
@@ -456,8 +457,8 @@ function randDOB(){ // Apr 2026 .. mid Jun 2026
 const FSTAT=['none','none','none','booked','done'];
 function statusMap(f){
   if(f==='done')return{st:'Immunised',sb:'rL',pri:'wL',act:'None — protected'};
-  if(f==='booked')return{st:'Booked',sb:'rM',pri:'wM',act:'Send reminder to mother'};
-  return{st:'Not dosed',sb:'rH',pri:'wU',act:'Contact mother — book dose'};
+  if(f==='booked')return{st:'Booked',sb:'rM',pri:'wM',act:'Send reminder to caregiver'};
+  return{st:'Not dosed',sb:'rH',pri:'wU',act:'Contact caregiver — book dose'};
 }
 const infants=[];const usedM=new Set();
 function makeInfant(i){
@@ -467,10 +468,14 @@ function makeInfant(i){
   const f=pk(FSTAT);const sm=statusMap(f);
   const a=rsvAssess({dob,weight,gest,risk});
   const rel=ch(.7)?'Mother':ch(.6)?'Father':'Guardian';
-  const mother=rel==='Mother'?('أم '+fn[0]):rel==='Father'?('أبو '+fn[0]):('ولي أمر '+fn[0]);
+  const cg=pk(rel==='Mother'?ADULT_F:ADULT_M);const mother=cg[1]+' '+ln[1];
   const phone='+9665'+(10000000+Math.floor(rnd()*8999999));
+  const src=ch(.8)?'Military Hospital Riyadh':'Maternity & Children, Riyadh';
+  const contacts=[{type:'Birth record received',date:dob,status:'Done',by:src}];
+  if(f==='booked')contacts.unshift({type:'Booking call to caregiver',date:'2 days ago',status:'Done',by:'Coordinator'});
+  if(f==='done')contacts.unshift({type:'Dose administered (IM)',date:'Recently',status:'Done',by:'Nurse'},{type:'Booking call to caregiver',date:'1 week ago',status:'Done',by:'Coordinator'});
   return {id:i,n:fn[0]+' '+ln[0],en:fn[1]+' '+ln[1],sex,dob,weight,gest,risk,mother,caregiver:mother,relation:rel,phone,
-    mrn:'MH-'+(10200+i),source:ch(.8)?'Military Hospital Riyadh':'Maternity & Children, Riyadh',
+    mrn:'MH-'+(10200+i),source:src,contacts,
     f,st:sm.st,sb:sm.sb,pri:f==='none'&&a.elig?'wU':sm.pri,act:sm.act,
     elig:a.elig,basis:a.basis,dose:a.dose,season:a.season,score:a.score,tier:a.tier,ageNow:a.ageNow,disc:[],allergy:ch(.1)?'—':'No known allergies'};
 }
@@ -480,12 +485,12 @@ for(let i=0;i<50;i++)infants.push(makeInfant(i));
 const TT={dash:['Dashboard','RSV infant immunisation · nirsevimab (Beyfortus) · Riyadh'],
 import:['Birth Data Import','Ingest births from Military Hospital Riyadh — the first job'],
 enrol:['Enrol Infant','Add a new delivery or manual entry · live AI eligibility'],
-registry:['Infant Registry','Born since Apr 2026 · mother-linked'],
+registry:['Infant Registry','Born since Apr 2026 · caregiver-linked'],
 huddle:['Daily Huddle','Infants due before the RSV season'],
-tasks:['Care Tasks','Mother outreach & dosing queue'],
+tasks:['Care Tasks','Caregiver outreach & dosing queue'],
 bot:['Caregiver WhatsApp Bot','Arabic conversational outreach to the parent/guardian'],
 messages:['Caregiver Messages','Message the parent/guardian about the infant'],
-barriers:['Barrier Analytics','Why mothers delay or decline'],
+barriers:['Barrier Analytics','Why caregivers delay or decline'],
 integ:['Data Feed & RWE','Sources, AI engine & first-job KPIs'],
 settings:['Settings','Branding · AI · data feed · residency']};
 function show(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');
@@ -561,13 +566,15 @@ function processImport(){
     const id=infants.length;const weight=parseFloat(wt)||4;
     const a=rsvAssess({dob,weight,gest:38,risk:[]});
     const sm=statusMap('none');
-    const inf={id,n:en,en,sex:'?',dob,weight,gest:38,risk:[],mother:'أم '+en.split(' ')[0],phone:phone||'+9665XXXXXXX',mrn,source:'Military Hospital Riyadh',
-      f:'none',st:sm.st,sb:sm.sb,pri:a.elig?'wU':sm.pri,act:'Contact mother — book dose',elig:a.elig,basis:a.basis,dose:a.dose,season:a.season,score:a.score,tier:a.tier,ageNow:a.ageNow,disc:[],allergy:'No known allergies'};
+    const cgName=(pk(ADULT_F)[1])+' '+(en.split(' ')[1]||'');
+    const inf={id,n:en,en,sex:'?',dob,weight,gest:38,risk:[],mother:cgName.trim(),caregiver:cgName.trim(),relation:'Mother',phone:phone||'+9665XXXXXXX',mrn,source:'Military Hospital Riyadh',
+      contacts:[{type:'Birth record imported',date:dob,status:'Done',by:'Military Hospital feed'}],
+      f:'none',st:sm.st,sb:sm.sb,pri:a.elig?'wU':sm.pri,act:'Contact caregiver — book dose',elig:a.elig,basis:a.basis,dose:a.dose,season:a.season,score:a.score,tier:a.tier,ageNow:a.ageNow,disc:[],allergy:'No known allergies'};
     infants.push(inf);added++;
-    if(a.elig){eligN++;addTodo('Contact mother — book '+a.dose+' nirsevimab','call','Coordinator',id);}
+    if(a.elig){eligN++;addTodo('Contact caregiver — book '+a.dose+' nirsevimab','call','Coordinator',id);}
     rows.push({en,mrn,status:a.elig?'eligible · '+a.dose:'not eligible'});
   });
-  document.getElementById('impResult').innerHTML=`<div class="card cp" style="border-top:3px solid var(--gr)"><div style="font-weight:800;color:var(--grd);margin-bottom:8px">✅ Imported ${added} · ${eligN} eligible · ${dupes} duplicate(s) skipped</div>${rows.map(r=>`<div class="imp-row"><span class="b">${r.en}</span><span style="color:var(--mu)">${r.mrn}</span><span class="chip ${r.status.includes('eligible')?'ch-g':r.status==='duplicate'?'ch-a':'ch-s'}" style="margin-left:auto">${r.status}</span></div>`).join('')}<div class="note" style="margin-top:10px">Eligible infants were added to the registry and a <b>mother-outreach Care Task</b> was created for each. The AI engine set the weight-based dose automatically.</div></div>`;
+  document.getElementById('impResult').innerHTML=`<div class="card cp" style="border-top:3px solid var(--gr)"><div style="font-weight:800;color:var(--grd);margin-bottom:8px">✅ Imported ${added} · ${eligN} eligible · ${dupes} duplicate(s) skipped</div>${rows.map(r=>`<div class="imp-row"><span class="b">${r.en}</span><span style="color:var(--mu)">${r.mrn}</span><span class="chip ${r.status.includes('eligible')?'ch-g':r.status==='duplicate'?'ch-a':'ch-s'}" style="margin-left:auto">${r.status}</span></div>`).join('')}<div class="note" style="margin-top:10px">Eligible infants were added to the registry and a <b>caregiver-outreach Care Task</b> was created for each. The AI engine set the weight-based dose automatically.</div></div>`;
   renderReg();refreshMetrics();renderTasks('all');toast('Import processed ✓',added+' infants · '+eligN+' eligible');
 }
 
@@ -582,14 +589,14 @@ function hudPick(id){hudSel=id;const inf=infants[id],A=rsvAlerts(inf);
     <div class="vit"><div><div class="v">${inf.score}</div><div class="l">AI risk</div></div><div><div class="v" style="font-size:12px">${inf.elig?'Eligible':'—'}</div><div class="l">Eligibility</div></div><div><div class="v" style="font-size:12px">${inf.dose||'—'}</div><div class="l">Dose</div></div><div><div class="v" style="font-size:12px">${inf.gest} wk</div><div class="l">Gestation</div></div><div><div class="v" style="font-size:11px">${inf.st}</div><div class="l">Status</div></div></div>
     <div style="font-size:10px;font-weight:700;color:var(--mu);letter-spacing:.05em;margin-bottom:8px">CAREGIVER (${inf.relation}) · ${inf.mother} · ${inf.phone}</div>
     <div class="ai"><div class="ai-h"><div class="ai-ic">🤖</div><div><div class="ai-t">AI guidance</div><div class="ai-s">rule engine</div></div></div>${A.map(x=>`<div class="flag ${x.s==='r'?'fR2':x.s==='a'?'fY2':'fG2'}">${x.t}</div>`).join('')}</div>
-    <div style="display:flex;gap:7px;margin-top:12px;flex-wrap:wrap"><button class="btn btn-g btn-sm" onclick="doseGiven(${inf.id})">💉 Record dose given</button><button class="btn btn-b btn-sm" onclick="addTodo('Call mother — book dose','call','Nurse',${inf.id})">📞 Mother to call</button><button class="btn btn-o btn-sm" onclick="show('messages')">💬 Message mother</button></div>`;
+    <div style="display:flex;gap:7px;margin-top:12px;flex-wrap:wrap"><button class="btn btn-g btn-sm" onclick="doseGiven(${inf.id})">💉 Record dose given</button><button class="btn btn-b btn-sm" onclick="logCall(${inf.id})">📞 Log call</button><button class="btn btn-o btn-sm" onclick="messageInfant(${inf.id})">💬 Message caregiver</button></div>`;
   renderHuddle();}
 function doseGiven(id){const inf=infants[id];inf.f='done';inf.st='Immunised';inf.sb='rL';inf.pri='wL';inf.act='None — protected';renderReg();refreshMetrics();renderHuddle();toast('Dose recorded ✓',inf.en+' · '+inf.dose);}
 
 /* ===== Care Tasks ===== */
 const tasks=[];
-infants.forEach(inf=>{if(inf.elig&&inf.f==='none')tasks.push({t:'Contact mother — book dose',d:inf.mother+' · '+inf.phone,role:'Coordinator',type:'call',done:false,pid:inf.id});
-  if(inf.f==='booked')tasks.push({t:'Send reminder to mother',d:'Appointment booked',role:'Coordinator',type:'dose',done:false,pid:inf.id});
+infants.forEach(inf=>{if(inf.elig&&inf.f==='none')tasks.push({t:'Contact caregiver — book dose',d:inf.mother+' · '+inf.phone,role:'Coordinator',type:'call',done:false,pid:inf.id});
+  if(inf.f==='booked')tasks.push({t:'Send reminder to caregiver',d:'Appointment booked',role:'Coordinator',type:'dose',done:false,pid:inf.id});
   if(inf.risk.length&&inf.f!=='done')tasks.push({t:'Prioritise high-risk infant',d:inf.risk.map(r=>HIGHRISK[r]).join(', '),role:'Nurse',type:'call',done:false,pid:inf.id});});
 function activeTF(){return 'all';}
 function addTodo(t,type,role,pid){const label=t.split('·')[0].trim();if(tasks.some(x=>!x.done&&x.pid===pid&&x.t.split('·')[0].trim()===label)){return;}tasks.unshift({t:label,d:'Added from huddle/import',role:role||'Coordinator',type:type||'call',done:false,pid:pid});renderTasks('all');refreshMetrics();}
@@ -604,24 +611,40 @@ function completeTask(i){tasks[i].done=true;renderTasks();refreshMetrics();}
 /* ===== Patient (infant) modal ===== */
 function openPat(id){const inf=infants[id],A=rsvAlerts(inf);
   document.getElementById('pmT').textContent=inf.en+' — infant record';
-  const arMsg=inf.f==='done'?'تم تطعيم طفلك ضد الفيروس المخلوي 🤍 حماية لهذا الموسم.':inf.elig?`عزيزتي ${inf.mother} 👋 طفلك مؤهل لتطعيم الوقاية من الفيروس المخلوي (نيرسيفيماب) قبل بداية الموسم. نحجز لكم موعداً؟`:'شكراً 🤍 سنبقيك على اطلاع بمواعيد التطعيم.';
+  const relAr=inf.relation==='Father'?'الأب الكريم':inf.relation==='Guardian'?'ولي الأمر الكريم':'الأم الكريمة';
+  const arMsg=inf.f==='done'?'تم تطعيم طفلكم ضد الفيروس المخلوي 🤍 حماية لهذا الموسم.':inf.elig?`${relAr} 👋 طفلكم ${inf.n} مؤهل لتطعيم الوقاية من الفيروس المخلوي (نيرسيفيماب ${inf.dose}) قبل بداية الموسم. نحجز لكم موعداً؟`:'شكراً 🤍 سنبقيكم على اطلاع بمواعيد التطعيم.';
   document.getElementById('pmB').innerHTML=`
    <div class="card cp"><div style="display:flex;gap:14px;align-items:flex-start"><div class="ph-av" style="background:linear-gradient(135deg,#10243f,#2f7ed8)">${inf.en.split(' ').map(x=>x[0]).join('').slice(0,2)}</div>
    <div style="flex:1"><div style="font-size:18px;font-weight:800">${inf.en} ${inf.risk.length?'<span class="tag SH">High-risk</span>':''} ${inf.elig?'<span class="tag S'+inf.season+'">Eligible · Season '+inf.season+'</span>':''}</div>
    <div style="font-size:11px;color:var(--mu);margin-top:3px">${inf.sex==='M'?'Boy':inf.sex==='F'?'Girl':'Infant'} · DOB ${inf.dob} · ${inf.ageNow} mo · ${inf.mrn} · ${inf.source}</div>
    <div style="font-size:11px;color:var(--mu);margin-top:3px">👤 Caregiver: ${inf.mother} <span class="chip ch-p">${inf.relation}</span> · ${inf.phone} · <span class="chip ${inf.allergy==='No known allergies'?'ch-g':'ch-r'}">${inf.allergy}</span></div>
-   <div style="display:flex;gap:7px;margin-top:9px"><button class="btn btn-b btn-sm" onclick="show('messages')">💬 Message mother</button>${inf.f!=='done'?`<button class="btn btn-g btn-sm" onclick="doseGiven(${inf.id});closePat()">💉 Record dose</button>`:''}</div></div></div>
+   <div style="display:flex;gap:7px;margin-top:9px;flex-wrap:wrap"><button class="btn btn-b btn-sm" onclick="messageInfant(${inf.id})">💬 Message caregiver</button><button class="btn btn-o btn-sm" onclick="logCall(${inf.id})">📞 Log call</button>${inf.f!=='done'?`<button class="btn btn-g btn-sm" onclick="doseGiven(${inf.id});closePat()">💉 Record dose</button>`:''}</div></div></div>
    <div class="vit"><div><div class="v">${inf.weight}</div><div class="l">Weight kg</div></div><div><div class="v">${inf.gest}</div><div class="l">Gestation wk</div></div><div><div class="v" style="font-size:13px">${inf.elig?inf.dose:'—'}</div><div class="l">Nirsevimab</div></div><div><div class="v" style="color:${inf.tier==='High'?'var(--rd)':inf.tier==='Moderate'?'var(--am)':'var(--gr)'}">${inf.score}</div><div class="l">AI risk</div></div><div><div class="v" style="font-size:12px">${inf.st}</div><div class="l">Status</div></div></div></div>
    <div class="g2" style="margin-top:14px"><div class="card cp"><div class="ct" style="margin-bottom:8px">RISK FACTORS</div>${inf.risk.length?inf.risk.map(r=>`<div class="sc"><div class="scd s-ov"></div><b>${HIGHRISK[r]}</b></div>`).join(''):'<div style="font-size:12px;color:var(--mu)">None — term, healthy infant</div>'}</div>
    <div class="card cp"><div class="ct" style="margin-bottom:8px">ELIGIBILITY & DOSE</div><div class="sc"><div class="scd ${inf.elig?'s-ok':'s-due'}"></div><b>Eligibility</b><span class="m">${inf.basis}</span></div><div class="sc"><div class="scd s-ok"></div><b>Recommended dose</b><span class="m">${inf.elig?inf.dose+' nirsevimab (IM)':'—'}</span></div><div class="sc"><div class="scd s-ok"></div><b>Age at season start</b><span class="m">${rsvAssess(inf).ageSeason} mo</span></div></div></div>
    <div class="card cp" style="margin-top:14px;border-color:var(--rdl)"><div class="ct" style="margin-bottom:10px;color:var(--rd)">⚠ AI ALERTS · rule engine</div>${A.map(x=>`<div style="background:${x.s==='r'?'var(--rdl)':x.s==='a'?'var(--aml)':'var(--grl)'};border-left:3px solid ${x.s==='r'?'var(--rd)':x.s==='a'?'var(--am)':'var(--gr)'};padding:9px 12px;border-radius:7px;margin-bottom:6px;font-size:12px">${x.t}</div>`).join('')}</div>
-   <div class="ai" style="margin-top:14px;background:linear-gradient(135deg,#10243f,#1b3a63)"><div class="ai-bt">Suggested WhatsApp message to the mother</div><div class="ar" style="font-size:14px;line-height:1.8;margin-bottom:8px">${arMsg}</div><button class="btn btn-b btn-sm" onclick="toast('Message sent ✓','to '+'${inf.mother}')">Send to mother</button></div>`;
+   <div class="card cp" style="margin-top:14px"><div class="ct" style="margin-bottom:8px">CONTACTS &amp; CALLS</div><div class="tbl-w"><table class="tbl"><thead><tr><th>Type</th><th>Date</th><th>Status</th><th>By</th></tr></thead><tbody>${(inf.contacts||[]).map(c=>`<tr><td>${c.type}</td><td>${c.date}</td><td><span class="chip ${c.status==='Done'?'ch-g':'ch-a'}">${c.status}</span></td><td>${c.by}</td></tr>`).join('')}</tbody></table></div><button class="btn btn-o btn-sm" style="margin-top:10px" onclick="logCall(${inf.id})">📞 Log a call with the caregiver</button></div>
+   <div class="card cp" style="margin-top:14px"><div class="ct" style="margin-bottom:8px">LOG A BARRIER / DROP-OFF REASON <span style="font-weight:400;color:var(--mu);font-size:10px">· AI routes it to a Care Task + education</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><select id="barSelRec" style="flex:1;min-width:240px;padding:9px;border:1px solid var(--bdr);border-radius:7px;font-size:12px">${Object.keys(RSV_BARRIERS).map(k=>`<option value="${k}">${RSV_BARRIERS[k].label}</option>`).join('')}</select><button class="btn btn-p btn-sm" onclick="logBarrierRec(${inf.id})">Log barrier</button></div></div>
+   <div class="card cp" style="margin-top:14px;border-color:var(--rdl)"><div class="ct" style="margin-bottom:10px;color:var(--rd)">⚠ AI ALERTS · rule engine</div>${A.map(x=>`<div style="background:${x.s==='r'?'var(--rdl)':x.s==='a'?'var(--aml)':'var(--grl)'};border-left:3px solid ${x.s==='r'?'var(--rd)':x.s==='a'?'var(--am)':'var(--gr)'};padding:9px 12px;border-radius:7px;margin-bottom:6px;font-size:12px">${x.t}</div>`).join('')}</div>
+   <div class="card cp" style="margin-top:14px"><div class="ct" style="margin-bottom:8px">CARE-TEAM COMMUNICATION</div><div style="font-size:12px;color:var(--mu);line-height:1.6"><b style="color:var(--tx)">Sara Al-Ghamdi</b> <span style="font-size:10px">Immunisation Coordinator · today</span><br>${inf.f==='done'?'Dose administered — infant protected for this RSV season. Closing follow-up.':inf.f==='booked'?'Appointment booked — automated reminder scheduled for the caregiver the day before.':inf.elig?'Eligible &amp; undosed — contacting '+inf.relation.toLowerCase()+' to book before the season opens (Oct).':'Not eligible this season — caregiver kept informed for next season.'}</div></div>
+   <div class="ai" style="margin-top:14px;background:linear-gradient(135deg,#10243f,#1b3a63)"><div class="ai-bt">Suggested WhatsApp message to the caregiver (${inf.relation})</div><div class="ar" style="font-size:14px;line-height:1.8;margin-bottom:8px">${arMsg}</div><button class="btn btn-b btn-sm" onclick="messageInfant(${inf.id})">Open caregiver chat →</button></div>`;
   document.getElementById('patModal').classList.add('open');}
 function closePat(){document.getElementById('patModal').classList.remove('open');}
 document.getElementById('patModal').onclick=e=>{if(e.target.id==='patModal')closePat();};
+const RSV_BARRIERS={
+ unaware:{label:'Caregiver unaware of RSV / nirsevimab',task:'Send awareness message + book',edu:'What RSV is',role:'Coordinator'},
+ fear:{label:'Afraid of the injection',task:'Reassure — single, well-tolerated injection',edu:'What to expect',role:'Nurse'},
+ busy:{label:'Too busy / forgot',task:'Send reminder + offer a flexible slot',edu:'Booking help',role:'Coordinator'},
+ travel:{label:'Distance / travel difficulty',task:'Offer the nearest centre',edu:'Booking help',role:'Coordinator'},
+ unwell:{label:'Baby unwell right now',task:'Reschedule once recovered',edu:'When to vaccinate',role:'Nurse'},
+ hesitant:{label:'Vaccine hesitancy',task:'Share Sanofi safety data + counsel',edu:'Safety & benefits',role:'Paediatrician'}
+};
+function messageInfant(id){const inf=infants[id];closePat();show('messages');const p=document.getElementById('msgPt');if(p){p.value=inf.en+' · '+inf.mrn;msgCg();aiMsg();}}
+function logCall(id){const inf=infants[id];inf.contacts=inf.contacts||[];inf.contacts.unshift({type:'Call to caregiver',date:'Today',status:'Done',by:'Coordinator'});addTodo('Follow up after caregiver call','call','Coordinator',id);toast('Call logged ✓',inf.mother+' ('+inf.relation+')');openPat(id);}
+function logBarrierRec(id){const k=document.getElementById('barSelRec').value,b=RSV_BARRIERS[k],inf=infants[id];barrierLog.unshift({pid:id,label:b.label,date:'Today',task:b.task,edu:b.edu});addTodo(b.task,'call',b.role,id);renderBarriers();toast('Barrier logged ✓','→ Care Task + education');openPat(id);}
 
 /* ===== Barriers ===== */
-const barrierLog=[{pid:0,label:'Mother unaware of RSV / nirsevimab',date:'Today',task:'Send awareness message + book',edu:'What RSV is'},{pid:2,label:'Afraid of the injection',date:'Today',task:'Reassure — single, well-tolerated injection',edu:'What to expect'}];
+const barrierLog=[{pid:0,label:'Caregiver unaware of RSV / nirsevimab',date:'Today',task:'Send awareness message + book',edu:'What RSV is'},{pid:2,label:'Afraid of the injection',date:'Today',task:'Reassure — single, well-tolerated injection',edu:'What to expect'}];
 function renderBarriers(){const el=document.getElementById('barFeed');if(!el)return;
   el.innerHTML=barrierLog.length?barrierLog.map((x,i)=>{const inf=infants[x.pid];return `<div onclick="openBarrier(${i})" style="border:1px solid var(--bdr);border-radius:9px;padding:10px 12px;margin-bottom:8px;cursor:pointer"><div style="display:flex;justify-content:space-between"><b style="font-size:12px">${inf?inf.en:'—'} <span style="font-size:10px;color:var(--mu)">· ${inf?inf.mother:''}</span></b><span style="font-size:10px;color:var(--mu)">${x.date} · click for details</span></div><div style="font-size:12px;color:var(--rd);margin-top:3px">🚧 ${x.label}</div><div style="font-size:11px;color:var(--mu);margin-top:4px">🤖 AI → <b>Care Task:</b> ${x.task} · <b>Education:</b> ${x.edu}</div></div>`;}).join(''):'<div class="note">No barriers logged yet.</div>';}
 function openBarrier(i){const x=barrierLog[i],inf=infants[x.pid];
@@ -669,7 +692,7 @@ function tm(){const d=new Date();return d.getHours()+':'+String(d.getMinutes()).
 function add(t,w){const m=document.createElement('div');m.className='msg '+w;m.innerHTML=t+'<span class="tm">'+tm()+'</span>';chat.appendChild(m);chat.scrollTop=chat.scrollHeight;}
 function setOpts(a){opts.innerHTML='';a.forEach(o=>{const b=document.createElement('button');b.textContent=o.t;b.onclick=()=>{add(o.t,'user');opts.innerHTML='';setTimeout(o.go,400);};opts.appendChild(b);});}
 function typing(cb){const m=document.createElement('div');m.className='msg bot';m.textContent='…';chat.appendChild(m);chat.scrollTop=chat.scrollHeight;setTimeout(()=>{m.remove();cb();},460);}
-const B={start(){chat.innerHTML='';typing(()=>{add('السلام عليكم 👋 معك مساعد جسور لتطعيم الأطفال بالتعاون مع Sanofi.','bot');typing(()=>{add('وصلنا أن لديكم مولوداً جديداً 🤍 هل ترغبون بحماية طفلكم من الفيروس المخلوي التنفسي قبل الموسم؟','bot');setOpts([{t:'نعم، أخبروني أكثر',go:B.info},{t:'ما هو هذا الفيروس؟',go:()=>B.kb(0)}]);});});},
+const B={start(){chat.innerHTML='';typing(()=>{add('السلام عليكم 👋 معك مساعد جسور لتطعيم الأطفال بالتعاون مع Sanofi.','bot');typing(()=>{add('مبروك ما جاكم 🎉🤍 ألف مبروك المولود! وصلنا خبر قدومه ونتمنى له الصحة والعافية. هل ترغبون بحماية طفلكم من الفيروس المخلوي التنفسي (RSV) قبل بداية الموسم؟','bot');setOpts([{t:'الله يبارك فيكم، أخبروني أكثر',go:B.info},{t:'ما هو هذا الفيروس؟',go:()=>B.kb(0)}]);});});},
  info(){typing(()=>{add('جرعة واحدة من نيرسيفيماب تحمي طفلكم طوال الموسم. هل عمر طفلكم أقل من 8 أشهر؟','bot');setOpts([{t:'نعم',go:B.elig},{t:'لا / غير متأكدة',go:B.unsure}]);});},
  elig(){typing(()=>{add('ممتاز ✅ طفلكم مؤهل. نحدد الجرعة حسب وزنه ونحجز لكم موعداً قبل الموسم. هل تريدون الحجز؟','bot');setOpts([{t:'نعم، احجزوا لي',go:B.book},{t:'عندي سؤال',go:B.faq}]);});},
  unsure(){typing(()=>{add('لا مشكلة 🤍 سيتواصل معكم منسق المركز لتحديد الأهلية المناسبة لعمر طفلكم.','bot');botTask('Verify eligibility — mother unsure of age');setOpts([{t:'حسناً، شكراً',go:B.end}]);});},
@@ -705,9 +728,9 @@ function renderWiz(){renderStepper();let h='';
   if(wiz.step===1){
     h=`<div class="fsec2">Newborn details</div>
     <div class="g2">${fld('Full name',`<input value="${wiz.name}" oninput="setW('name',this.value)" placeholder="e.g. Faisal Al-Harbi">`)}${fld('MRN / birth ID',`<input value="${wiz.mrn}" oninput="setW('mrn',this.value)" placeholder="MH-XXXXX">`)}</div>
-    <div class="g3">${fld('Date of birth',`<input type="date" value="${wiz.dob}" onchange="setW('dob',this.value)">`)}${fld('Sex',`<select onchange="setW('sex',this.value)"><option ${wiz.sex==='Male'?'selected':''}>Male</option><option ${wiz.sex==='Female'?'selected':''}>Female</option></select>`)}${fld('Birth weight (kg)',`<input type="number" step="0.1" value="${wiz.weight}" oninput="setW('weight',this.value)" placeholder="e.g. 4.2">`)}</div>
+    <div class="g3">${fld('Date of birth',`<input type="date" value="${wiz.dob}" onchange="setW('dob',this.value)">`)}${fld('Sex',`<select onchange="setW('sex',this.value)"><option ${wiz.sex==='Male'?'selected':''}>Male</option><option ${wiz.sex==='Female'?'selected':''}>Female</option></select>`)}${fld('Birth weight (kg)',`<input type="number" step="0.1" min="1.5" max="7" list="wtList" value="${wiz.weight}" oninput="setW('weight',this.value)" placeholder="type or pick"><datalist id="wtList">${[2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5].map(n=>`<option>${n}</option>`).join('')}</datalist>`)}</div>
     <div class="g3">${fld('Gestational age (wk)',`<input type="number" min="28" max="42" list="gestList" value="${wiz.gest}" oninput="setW('gest',this.value)" placeholder="type or pick"><datalist id="gestList">${Array.from({length:15},(_,k)=>28+k).map(n=>`<option>${n}</option>`).join('')}</datalist>`)}${fld('Source / hospital',`<select onchange="setW('source',this.value)">${SOURCES.map(s=>`<option ${wiz.source===s?'selected':''}>${s}</option>`).join('')}</select>`)}<div></div></div>
-    <div class="g3">${fld('Caregiver relationship',`<select onchange="setW('relation',this.value)"><option ${wiz.relation==='Mother'?'selected':''}>Mother</option><option ${wiz.relation==='Father'?'selected':''}>Father</option><option ${wiz.relation==='Guardian'?'selected':''}>Guardian</option></select>`)}${fld('Caregiver name',`<input value="${wiz.mother}" oninput="setW('mother',this.value)" placeholder="e.g. أم فيصل / أبو فيصل">`)}${fld('Caregiver phone',`<input value="${wiz.phone}" oninput="setW('phone',this.value)" placeholder="+9665XXXXXXX">`)}</div>`;
+    <div class="g3">${fld('Caregiver relationship',`<select onchange="setW('relation',this.value)"><option ${wiz.relation==='Mother'?'selected':''}>Mother</option><option ${wiz.relation==='Father'?'selected':''}>Father</option><option ${wiz.relation==='Guardian'?'selected':''}>Guardian</option></select>`)}${fld('Caregiver name',`<input value="${wiz.mother}" oninput="setW('mother',this.value)" placeholder="e.g. Sara Al-Harbi">`)}${fld('Caregiver phone',`<input value="${wiz.phone}" oninput="setW('phone',this.value)" placeholder="+9665XXXXXXX">`)}</div>`;
   } else if(wiz.step===2){
     h=`<div class="fsec2">Risk factors</div><div style="font-size:11px;color:var(--mu);margin-bottom:8px">High-risk infants are prioritised and may qualify for a second-season dose.</div>
     <div class="med-grid">${Object.keys(HIGHRISK).map(k=>`<label class="med"><input type="checkbox" ${wiz.risk.includes(k)?'checked':''} onchange="toggleRisk('${k}',this)"><div><b>${HIGHRISK[k]}</b></div></label>`).join('')}</div>
@@ -725,23 +748,25 @@ function renderWiz(){renderStepper();let h='';
     <div class="sc"><b>Infant</b><span class="m">${wiz.name||'—'} · ${wiz.mrn||'—'}</span></div>
     <div class="sc"><b>Basis</b><span class="m">${a.basis}</span></div>
     ${a.elig?`<div class="sc"><b>Dose</b><span class="m">${a.dose} nirsevimab (IM)</span></div><div class="sc"><b>AI risk</b><span class="m"><span class="tag ${cls}">${a.tier} · ${a.score}/100</span></span></div>`:''}
-    <div class="sc"><b>Mother</b><span class="m">${wiz.mother||'—'} · ${wiz.phone||'—'}</span></div></div>
-    <div class="ai" style="margin-top:12px"><div class="ai-bt">Suggested WhatsApp message to the mother</div><div class="ar" style="font-size:13px;line-height:1.7">${msg}</div></div>`;
+    <div class="sc"><b>Caregiver</b><span class="m">${wiz.mother||'—'} (${wiz.relation}) · ${wiz.phone||'—'}</span></div></div>
+    <div class="ai" style="margin-top:12px"><div class="ai-bt">Suggested WhatsApp message to the caregiver</div><div class="ar" style="font-size:13px;line-height:1.7">${msg}</div></div>`;
   }
   h+=`<div style="display:flex;justify-content:space-between;margin-top:16px"><button class="btn btn-o" onclick="wizBack()" ${wiz.step===1?'style="visibility:hidden"':''}>← Back</button>${wiz.step<4?'<button class="btn btn-p" onclick="wizNext()">Continue →</button>':'<button class="btn btn-g" onclick="enrolNow()">＋ Add to registry</button>'}</div>`;
   document.getElementById('wizBody').innerHTML=h;updateLive();}
-function wizNext(){if(wiz.step===1&&(!wiz.name||!wiz.dob||!wiz.weight)){toast('Enter name, DOB and weight');return;}wiz.step=Math.min(4,wiz.step+1);renderWiz();}
+function wizNext(){if(wiz.step===1){const miss=[];if(!wiz.name)miss.push('full name');if(!wiz.dob)miss.push('date of birth');if(!wiz.weight)miss.push('birth weight');if(miss.length){toast('Please complete: '+miss.join(', '));return;}}wiz.step=Math.min(4,wiz.step+1);renderWiz();}
 function wizBack(){wiz.step=Math.max(1,wiz.step-1);renderWiz();}
 function enrolNow(){
   if(!wiz.name||!wiz.dob||!wiz.weight){toast('Name, DOB and weight required');return;}
   const id=infants.length,w=parseFloat(wiz.weight)||4,a=rsvAssess({dob:wiz.dob,weight:w,gest:parseInt(wiz.gest)||38,risk:wiz.risk});
   const fkey=wiz.hasDose==='done'?'done':wiz.hasDose==='booked'?'booked':'none',sm=statusMap(fkey);
-  const cgName=wiz.mother||((wiz.relation==='Father'?'أبو ':wiz.relation==='Guardian'?'ولي أمر ':'أم ')+wiz.name.split(' ')[0]);
+  const cgName=wiz.mother||(wiz.relation+' of '+wiz.name);
+  const contacts=[{type:'Manual enrolment',date:'Today',status:'Done',by:'Coordinator'}];
+  if(fkey==='done')contacts.unshift({type:'Dose administered (IM)',date:'Today',status:'Done',by:'Nurse'});
   infants.push({id,n:wiz.name,en:wiz.name,sex:wiz.sex==='Female'?'F':'M',dob:wiz.dob,weight:w,gest:parseInt(wiz.gest)||38,risk:wiz.risk.slice(),
-    mother:cgName,caregiver:cgName,relation:wiz.relation,phone:wiz.phone||'+9665XXXXXXX',mrn:wiz.mrn||('MH-'+(20500+id)),source:wiz.source,
+    mother:cgName,caregiver:cgName,relation:wiz.relation,phone:wiz.phone||'+9665XXXXXXX',mrn:wiz.mrn||('MH-'+(20500+id)),source:wiz.source,contacts,
     f:fkey,st:sm.st,sb:sm.sb,pri:a.elig&&fkey==='none'?'wU':sm.pri,act:sm.act,
     elig:a.elig,basis:a.basis,dose:a.dose,season:a.season,score:a.score,tier:a.tier,ageNow:a.ageNow,disc:[],allergy:wiz.allergy});
-  if(a.elig&&fkey==='none')addTodo('Contact mother — book '+a.dose+' nirsevimab','call','Coordinator',id);
+  if(a.elig&&fkey==='none')addTodo('Contact caregiver — book '+a.dose+' nirsevimab','call','Coordinator',id);
   renderReg();refreshMetrics();renderTasks();renderMessages();toast('Infant enrolled ✓',wiz.name+(a.elig?' · '+a.dose:''));
   Object.assign(wiz,{step:1,name:'',mrn:'',dob:'',weight:'',mother:'',phone:'',risk:[],hasDose:'no',doseDate:''});renderWiz();show('registry');}
 
