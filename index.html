@@ -319,6 +319,10 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
 
 <!-- COVERAGE DRIVE -->
 <div class="view" id="v-drive">
+  <div class="card cp" style="margin-bottom:14px;border-top:3px solid var(--bl)">
+    <div class="ch"><div><div class="ct">📋 Coverage Playbook — 9 evidence-based levers, wired into the platform</div><div class="cs">Each lever maps to a live control. Green = running, blue = configured. This is how we lift coverage before December.</div></div><button class="btn btn-b btn-sm" onclick="coverageReport()">📄 Weekly report</button></div>
+    <div id="pbList" style="margin-top:10px"></div>
+  </div>
   <div class="card cp" style="border-top:3px solid var(--gr);margin-bottom:14px">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px">
       <div><div class="ct">🎯 Season coverage target — every Apr–Nov infant dosed before 1 December</div><div class="cs">The biggest lever (Galicia, Spain): give the dose <b>before the baby leaves hospital</b> → 92% coverage, ~90% fewer RSV hospitalisations. This board closes the three gaps that lose coverage.</div></div>
@@ -416,6 +420,14 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
       <div class="set-row"><div><div class="n">Symptom follow-up</div><div class="d">Auto-message the caregiver after each dose</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
       <div class="set-row"><div><div class="n">Auto-escalate severe symptoms</div><div class="d">High fever, rash, breathing difficulty → nurse call</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
       <div class="fg" style="margin-top:10px"><label>Follow-up timing (after dose)</label><select><option>Day 1 and Day 3</option><option>Day 3 only</option></select></div>
+    </div>
+    <div class="card cp"><div class="ct" style="margin-bottom:12px">Coverage levers (evidence-based)</div>
+      <div class="set-row"><div><div class="n">Antenatal RSV counselling</div><div class="d">3rd-trimester consent so the birth dose is automatic at delivery</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
+      <div class="set-row"><div><div class="n">Birth-dose before discharge</div><div class="d">Standing order — offer every newborn before they go home</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
+      <div class="set-row"><div><div class="n">Opt-out pre-booking</div><div class="d">Auto-assign a slot; caregiver can decline or reschedule</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
+      <div class="set-row"><div><div class="n">Co-administer with routine EPI</div><div class="d">Give nirsevimab at the 2/4/6-month visit — no extra trip</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
+      <div class="fg" style="margin-top:10px"><label>Reminder cadence (touchpoints)</label><select><option>Congrats → info → booking → day-before → missed recall</option><option>Booking + day-before only</option></select></div>
+      <button class="btn btn-p btn-sm" onclick="toast('Coverage levers saved ✓','Applied to the programme')">Save levers</button>
     </div>
     <div class="card cp"><div class="ct" style="margin-bottom:12px">Birth feed &amp; integrations</div>
       <div class="set-row"><div><div class="n">Military Hospital Riyadh feed</div><div class="d">Daily 06:00 · cohort from April 2026</div></div><label class="sw"><input type="checkbox" checked><span class="sl"></span></label></div>
@@ -565,6 +577,36 @@ function refreshMetrics(){
   drawCharts();
 }
 /* ===== Coverage Drive — closes the 3 coverage gaps ===== */
+const PLAYBOOK=[
+ {n:1,t:'Birth dose before discharge',how:'Dose every newborn before they leave hospital — the single biggest lever',st:'Active',go:"document.getElementById('dvBefore').scrollIntoView({behavior:'smooth'})"},
+ {n:2,t:'Catch-up — co-administer at EPI visit',how:'April–Sep babies booked alongside the routine 2/4/6-month vaccines',st:'Active',go:"bookCatchUp()"},
+ {n:3,t:'Pre-book (opt-out)',how:'Auto-book all due infants; caregivers can decline or reschedule',st:'Active',go:"autoBookAll()"},
+ {n:4,t:'Decide antenatally',how:'3rd-trimester counselling so consent is ready at birth',st:'On',go:"show('settings')"},
+ {n:5,t:'Multi-touch reminders',how:'Congrats → info → booking → day-before → missed-dose recall',st:'On',go:"show('settings')"},
+ {n:6,t:'Trusted messengers for barriers',how:'Declines routed to the paediatrician with tailored education',st:'Active',go:"show('barriers')"},
+ {n:7,t:'High-risk first',how:'Preterm / lung / heart infants surfaced to the top of the queue',st:'Active',go:"highRiskFirst()"},
+ {n:8,t:'Hard target + countdown',how:'Live coverage % vs 90% goal, days to 1 December',st:'Active',go:"document.getElementById('dvBar').scrollIntoView({behavior:'smooth'})"},
+ {n:9,t:'Weekly RWE report (for Sanofi)',how:'Coverage + estimated hospitalisations averted, exportable',st:'Active',go:"coverageReport()"}
+];
+function renderPlaybook(){const el=document.getElementById('pbList');if(!el)return;
+  el.innerHTML=PLAYBOOK.map(p=>`<div style="display:flex;align-items:center;gap:12px;border:1px solid var(--bdr);border-radius:9px;padding:9px 12px;margin-bottom:7px"><div style="width:24px;height:24px;border-radius:50%;background:var(--nv);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0">${p.n}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">${p.t}</div><div style="font-size:11px;color:var(--mu)">${p.how}</div></div><span class="chip ${p.st==='Active'?'ch-g':'ch-b'}">${p.st}</span><button class="btn btn-o btn-xs" onclick="${p.go}">Open →</button></div>`).join('');}
+function highRiskFirst(){const arr=infants.filter(i=>i.risk.length&&i.elig&&i.f!=='done').sort((a,b)=>b.score-a.score);showCohort('High-risk · undosed — vaccinate first',arr);}
+function coverageReport(){
+  const elig=infants.filter(i=>i.elig).length,imm=infants.filter(i=>i.f==='done').length,booked=infants.filter(i=>i.f==='booked').length,due=infants.filter(i=>i.elig&&i.f!=='done').length,hr=infants.filter(i=>i.risk.length).length,decl=infants.filter(i=>i.declined).length;
+  const pct=elig?Math.round(imm/elig*100):0,avert=(imm*0.0164).toFixed(1);
+  document.getElementById('pmT').textContent='Weekly coverage report · for Sanofi';
+  document.getElementById('pmB').innerHTML=`
+   <div class="card cp" style="border-top:3px solid var(--bl)">
+     <div style="font-size:12px;color:var(--mu)">Jusoor × Sanofi · RSV Infant Immunisation · Riyadh · week of ${new Date().toISOString().slice(0,10)}</div>
+     <div style="font-size:22px;font-weight:900;color:var(--grd);margin:8px 0">${pct}% coverage <span style="font-size:12px;color:var(--mu);font-weight:600">(${imm} of ${elig} eligible)</span></div>
+     <div style="height:12px;background:#eef0f4;border-radius:8px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#2aa66a,#2f7ed8)"></div></div>
+     <div style="font-size:11px;color:var(--mu)">Target 90% before 1 December · ${daysToDec1()} days remaining</div>
+   </div>
+   <div class="vit" style="margin-top:12px"><div><div class="v">${infants.length}</div><div class="l">Births ingested</div></div><div><div class="v" style="color:var(--grd)">${imm}</div><div class="l">Immunised</div></div><div><div class="v">${booked}</div><div class="l">Booked</div></div><div><div class="v" style="color:var(--rd)">${due}</div><div class="l">Still due</div></div><div><div class="v">${hr}</div><div class="l">High-risk</div></div></div>
+   <div class="card cp" style="margin-top:12px;border-left:3px solid var(--gr)"><div class="ct" style="margin-bottom:6px">Estimated impact (modelled · Galicia / Tuscany RWE)</div><div style="font-size:13px;line-height:1.6">≈ <b>${avert}</b> RSV hospitalisations averted among dosed infants — based on ~82% reduction and ~2% baseline admission rate. <span style="color:var(--mu)">Needs Sanofi medical sign-off.</span></div></div>
+   <div class="card cp" style="margin-top:12px"><div class="ct" style="margin-bottom:6px">Gaps & actions this week</div><div style="font-size:12px;line-height:1.8;color:var(--mu)">• ${due} infants still to dose before the season<br>• ${decl} decline(s) routed for paediatrician re-approach<br>• Before-discharge, catch-up and opt-out worklists active in Coverage Drive</div></div>
+   <div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-p btn-sm" onclick="toast('Report exported ✓','Shareable one-pager (demo)')">⤓ Export / share</button><button class="btn btn-o btn-sm" onclick="closePat()">Close</button></div>`;
+  document.getElementById('patModal').classList.add('open');}
 function daysToDec1(){return Math.max(0,Math.ceil((new Date('2026-12-01')-TODAY)/86400000));}
 function driveCohorts(){
   const before=infants.filter(i=>i.elig&&i.f==='none'&&!i.declined&&parseFloat(i.ageNow)<1.5);
@@ -573,6 +615,7 @@ function driveCohorts(){
   return {before,catchUp,recall};}
 function driveRow(inf,actions){return `<div class="rq"><div class="rq-dot ${inf.declined?'s-ov':inf.f==='booked'?'s-due':'s-ov'}"></div><div style="flex:1;cursor:pointer" onclick="openPat(${inf.id})"><div class="rq-n">${inf.en} ${inf.risk.length?'<span class="chip ch-r">high-risk</span>':''} ${inf.declined?'<span class="chip ch-r">declined</span>':inf.f==='booked'?'<span class="chip ch-a">booked</span>':''}</div><div class="rq-d">${inf.ageNow} mo · ${inf.weight} kg · ${inf.elig?inf.dose:'—'} · ${inf.mother} (${inf.relation})</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">${actions}</div></div>`;}
 function renderDrive(){
+  renderPlaybook();
   const c=driveCohorts();
   const bd=document.getElementById('dvBefore');if(!bd)return;
   bd.innerHTML=c.before.length?c.before.map(i=>driveRow(i,`<button class="btn btn-g btn-xs" onclick="doseGiven(${i.id});renderDrive()">💉 Dose now</button><button class="btn btn-o btn-xs" onclick="declineDose(${i.id})">Decline</button>`)).join(''):'<div class="note">No newborns awaiting a birth dose. 🎉</div>';
