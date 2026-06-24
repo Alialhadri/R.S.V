@@ -193,8 +193,8 @@ body{background:var(--bg);display:flex;height:100vh;overflow:hidden;-webkit-font
     <div class="si" data-v="huddle"><span class="si-ic">☀</span>Daily Huddle<span class="si-b bA" id="bHud">0</span></div>
     <div class="si" data-v="tasks"><span class="si-ic">✓</span>Care Tasks<span class="si-b bR" id="bTask">0</span></div>
     <div class="sb-sec">Engagement</div>
-    <div class="si" data-v="bot"><span class="si-ic">🤖</span>Mother WhatsApp Bot</div>
-    <div class="si" data-v="messages"><span class="si-ic">💬</span>Mother Messages<span class="si-b bN" id="bMsg">0</span></div>
+    <div class="si" data-v="bot"><span class="si-ic">🤖</span>Caregiver WhatsApp Bot</div>
+    <div class="si" data-v="messages"><span class="si-ic">💬</span>Caregiver Messages<span class="si-b bN" id="bMsg">0</span></div>
     <div class="si" data-v="barriers"><span class="si-ic">🚧</span>Barrier Analytics</div>
     <div class="sb-sec">System</div>
     <div class="si" data-v="integ"><span class="si-ic">⇄</span>Data Feed &amp; RWE</div>
@@ -228,6 +228,11 @@ body{background:var(--bg);display:flex;height:100vh;overflow:hidden;-webkit-font
   <div class="g2" style="margin-bottom:14px">
     <div class="card cp"><div class="ch"><div><div class="ct">Coverage build-up</div><div class="cs">Cumulative infants immunised vs eligible</div></div></div><div style="height:210px"><canvas id="covChart"></canvas></div></div>
     <div class="card cp"><div class="ch"><div><div class="ct">Eligibility by age band</div><div class="cs">click a slice</div></div></div><div style="height:210px"><canvas id="ageChart"></canvas></div></div>
+  </div>
+  <div class="g3" style="margin-bottom:14px">
+    <div class="card cp"><div class="ct" style="margin-bottom:8px">Dose distribution <span style="font-weight:400;color:var(--mu);font-size:9px">· click</span></div><div style="height:175px"><canvas id="doseChart"></canvas></div></div>
+    <div class="card cp"><div class="ct" style="margin-bottom:8px">Vaccination status <span style="font-weight:400;color:var(--mu);font-size:9px">· click</span></div><div style="height:175px"><canvas id="statusChart"></canvas></div></div>
+    <div class="card cp"><div class="ct" style="margin-bottom:8px">Eligibility mix <span style="font-weight:400;color:var(--mu);font-size:9px">· click</span></div><div style="height:175px"><canvas id="eligChart"></canvas></div></div>
   </div>
   <div class="gx">
     <div class="card cp"><div class="ch"><div class="ct">Priority infants — due before season</div><button class="btn btn-o btn-xs" onclick="show('huddle')">Daily Huddle →</button></div><div id="dashPri"></div></div>
@@ -277,8 +282,15 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
 <!-- REGISTRY -->
 <div class="view" id="v-registry">
   <div class="card cp">
-    <div class="ch"><div><div class="ct">Infant Registry · <span id="regN">0</span> infants</div><div class="cs">Born since Apr 2026 · mother-linked · AI risk scored locally</div></div><div style="display:flex;gap:7px"><button class="btn btn-o btn-xs" onclick="show('import')">⬇ Import</button><button class="btn btn-o btn-xs" onclick="toast('Exported ✓','De-identified CSV')">⬇ Export</button></div></div>
-    <div class="tbl-w"><table class="tbl"><thead><tr><th>Infant</th><th>MRN</th><th>DOB</th><th>Age</th><th>Weight</th><th>Mother · phone</th><th>Eligibility</th><th>Dose</th><th>Status</th></tr></thead><tbody id="regBody"></tbody></table></div>
+    <div class="ch"><div><div class="ct">Infant Registry · <span id="regN">0</span> infants</div><div class="cs">Born since Apr 2026 · caregiver-linked · AI risk scored locally · click a row for the full record</div></div><div style="display:flex;gap:7px"><button class="btn btn-o btn-xs" onclick="show('import')">⬇ Import</button><button class="btn btn-o btn-xs" onclick="show('enrol')">＋ Enrol</button><button class="btn btn-o btn-xs" onclick="toast('Exported ✓','De-identified CSV')">⬇ Export</button></div></div>
+    <div id="regFilters" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
+      <div class="chip ch-s" data-f="all" onclick="renderReg('all',this)" style="cursor:pointer;padding:6px 13px;font-weight:600">All</div>
+      <div class="chip ch-s" data-f="due" onclick="renderReg('due',this)" style="cursor:pointer;padding:6px 13px;font-weight:600">Due (eligible, not dosed)</div>
+      <div class="chip ch-s" data-f="booked" onclick="renderReg('booked',this)" style="cursor:pointer;padding:6px 13px;font-weight:600">Booked</div>
+      <div class="chip ch-s" data-f="done" onclick="renderReg('done',this)" style="cursor:pointer;padding:6px 13px;font-weight:600">Immunised</div>
+      <div class="chip ch-s" data-f="highrisk" onclick="renderReg('highrisk',this)" style="cursor:pointer;padding:6px 13px;font-weight:600">High-risk</div>
+    </div>
+    <div class="tbl-w"><table class="tbl"><thead><tr><th>Infant</th><th>MRN</th><th>DOB</th><th>Age</th><th>Weight</th><th>Caregiver · phone</th><th>Eligibility</th><th>Dose</th><th>Status</th></tr></thead><tbody id="regBody"></tbody></table></div>
   </div>
 </div>
 
@@ -303,7 +315,7 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
 <!-- BOT -->
 <div class="view" id="v-bot">
   <div class="gx">
-    <div class="card cp"><div class="ch"><div><div class="ct">Arabic WhatsApp bot — to the mother</div><div class="cs">Tap replies to walk the flow</div></div><button class="btn btn-o btn-xs" onclick="botRestart()">↻ Restart</button></div>
+    <div class="card cp"><div class="ch"><div><div class="ct">Arabic WhatsApp bot — to the caregiver</div><div class="cs">Mother / father / guardian · tap replies to walk the flow</div></div><button class="btn btn-o btn-xs" onclick="botRestart()">↻ Restart</button></div>
       <div class="phone"><div class="phead"><div class="av">🍼</div><div><div style="font-size:12px;font-weight:700">مساعد جسور لتطعيم الأطفال</div><div style="font-size:10px;opacity:.8">متصل · ذكاء اصطناعي</div></div></div><div class="chat" id="chat"></div><div class="opts" id="opts"></div></div>
     </div>
     <div><div class="card cp" style="margin-bottom:14px"><div class="ct" style="margin-bottom:10px">Bot stats · today</div>
@@ -316,10 +328,10 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
 <!-- MESSAGES -->
 <div class="view" id="v-messages">
   <div class="gx">
-    <div class="card cp"><div class="ct" style="margin-bottom:12px">Message the mother</div>
-      <div class="fg"><label>Infant — type name or MRN</label><input id="msgPt" list="msgPtList" placeholder="Select infant…"><datalist id="msgPtList"></datalist></div>
+    <div class="card cp"><div class="ct" style="margin-bottom:12px">Message the caregiver</div>
+      <div class="fg"><label>Infant — type name or MRN</label><input id="msgPt" list="msgPtList" placeholder="Select infant…" oninput="msgCg()"><datalist id="msgPtList"></datalist><div id="msgCgLbl" style="font-size:10px;color:var(--mu);margin-top:4px"></div></div>
       <div class="fg"><label>Arabic template</label><select id="msgTpl" onchange="applyTpl()"><option value="">Choose template…</option></select></div>
-      <div class="fg"><label>Arabic message (للأم)</label><textarea id="msgAr" rows="6" style="direction:rtl;line-height:1.7" placeholder="اكتب رسالتك بالعربية هنا…"></textarea></div>
+      <div class="fg"><label>Arabic message (لولي الأمر)</label><textarea id="msgAr" rows="6" style="direction:rtl;line-height:1.7" placeholder="اكتب رسالتك بالعربية هنا…"></textarea></div>
       <div style="display:flex;gap:8px"><button class="btn btn-p" onclick="sendMsg()">Send message</button><button class="btn btn-o" onclick="aiMsg()">✦ AI Generate</button></div>
     </div>
     <div class="card cp"><div class="ct" style="margin-bottom:10px">Templates</div><div id="tplList"></div></div>
@@ -454,8 +466,10 @@ function makeInfant(i){
   const risk=[];if(gest<37&&ch(.7))risk.push('prem');if(ch(.06))risk.push('chd');if(ch(.05))risk.push('cld');if(ch(.03))risk.push('immuno');
   const f=pk(FSTAT);const sm=statusMap(f);
   const a=rsvAssess({dob,weight,gest,risk});
-  const mother=pk(MOTHERS);const phone='+9665'+(10000000+Math.floor(rnd()*8999999));
-  return {id:i,n:fn[0]+' '+ln[0],en:fn[1]+' '+ln[1],sex,dob,weight,gest,risk,mother,phone,
+  const rel=ch(.7)?'Mother':ch(.6)?'Father':'Guardian';
+  const mother=rel==='Mother'?('أم '+fn[0]):rel==='Father'?('أبو '+fn[0]):('ولي أمر '+fn[0]);
+  const phone='+9665'+(10000000+Math.floor(rnd()*8999999));
+  return {id:i,n:fn[0]+' '+ln[0],en:fn[1]+' '+ln[1],sex,dob,weight,gest,risk,mother,caregiver:mother,relation:rel,phone,
     mrn:'MH-'+(10200+i),source:ch(.8)?'Military Hospital Riyadh':'Maternity & Children, Riyadh',
     f,st:sm.st,sb:sm.sb,pri:f==='none'&&a.elig?'wU':sm.pri,act:sm.act,
     elig:a.elig,basis:a.basis,dose:a.dose,season:a.season,score:a.score,tier:a.tier,ageNow:a.ageNow,disc:[],allergy:ch(.1)?'—':'No known allergies'};
@@ -469,8 +483,8 @@ enrol:['Enrol Infant','Add a new delivery or manual entry · live AI eligibility
 registry:['Infant Registry','Born since Apr 2026 · mother-linked'],
 huddle:['Daily Huddle','Infants due before the RSV season'],
 tasks:['Care Tasks','Mother outreach & dosing queue'],
-bot:['Mother WhatsApp Bot','Arabic conversational outreach'],
-messages:['Mother Messages','Two-way WhatsApp'],
+bot:['Caregiver WhatsApp Bot','Arabic conversational outreach to the parent/guardian'],
+messages:['Caregiver Messages','Message the parent/guardian about the infant'],
 barriers:['Barrier Analytics','Why mothers delay or decline'],
 integ:['Data Feed & RWE','Sources, AI engine & first-job KPIs'],
 settings:['Settings','Branding · AI · data feed · residency']};
@@ -485,11 +499,15 @@ function toast(m,s){const t=document.getElementById('toast');document.getElement
 function eligChip(inf){return inf.elig?'<span class="chip ch-g">Eligible · S'+inf.season+'</span>':'<span class="chip ch-s">Not this season</span>';}
 function statChip(inf){return `<span class="tag ${inf.sb}">${inf.st}</span>`;}
 function riskPill(inf){const c=inf.tier==='High'?'rH':inf.tier==='Moderate'?'rM':'rL';return `<span class="tag ${c}">${inf.score} · ${inf.tier}</span>`;}
-function renderReg(){document.getElementById('regBody').innerHTML=infants.map(inf=>`<tr onclick="openPat(${inf.id})"><td style="font-weight:600">${inf.en}${inf.risk.length?' <span class="chip ch-r" style="font-size:9px">high-risk</span>':''}</td><td style="font-size:11px;color:var(--mu)">${inf.mrn}</td><td style="font-size:11px">${inf.dob}</td><td>${inf.ageNow} mo</td><td>${inf.weight} kg</td><td style="font-size:11px">${inf.mother}<div style="color:var(--mu);font-size:10px">${inf.phone}</div></td><td>${eligChip(inf)}</td><td style="font-size:11px">${inf.elig?inf.dose:'—'}</td><td>${statChip(inf)}</td></tr>`).join('');
+function renderReg(f,btn){
+  if(btn){document.querySelectorAll('#regFilters .chip').forEach(c=>{c.className='chip ch-s';});btn.className='chip ch-b';}
+  const cur=f||'all';
+  const list=infants.filter(inf=>cur==='all'?true:cur==='due'?(inf.elig&&inf.f!=='done'):cur==='booked'?inf.f==='booked':cur==='done'?inf.f==='done':cur==='highrisk'?inf.risk.length:true);
+  document.getElementById('regBody').innerHTML=list.map(inf=>`<tr onclick="openPat(${inf.id})"><td style="font-weight:600">${inf.en}${inf.risk.length?' <span class="chip ch-r" style="font-size:9px">high-risk</span>':''}</td><td style="font-size:11px;color:var(--mu)">${inf.mrn}</td><td style="font-size:11px">${inf.dob}</td><td>${inf.ageNow} mo</td><td>${inf.weight} kg</td><td style="font-size:11px">${inf.mother} <span style="color:var(--mu)">(${inf.relation})</span><div style="color:var(--mu);font-size:10px">${inf.phone}</div></td><td>${eligChip(inf)}</td><td style="font-size:11px">${inf.elig?inf.dose:'—'}</td><td>${statChip(inf)}</td></tr>`).join('')||'<tr><td colspan="9" style="text-align:center;color:var(--mu);padding:20px">No infants in this view.</td></tr>';
   document.getElementById('regN').textContent=infants.length;document.getElementById('bReg').textContent=infants.length;}
 
 /* ===== Dashboard metrics ===== */
-let trendChartRef,covChartRef,ageChartRef,barrierChartRef;
+let trendChartRef,covChartRef,ageChartRef,barrierChartRef,doseRef,statusRef,eligRef;
 function refreshMetrics(){
   const elig=infants.filter(i=>i.elig).length,imm=infants.filter(i=>i.f==='done').length,due=infants.filter(i=>i.elig&&i.f!=='done').length;
   document.getElementById('kBirths').textContent=infants.length;
@@ -513,6 +531,12 @@ function drawCharts(){
   const b=[0,0,0];infants.forEach(i=>{const m=parseFloat(i.ageNow);if(m<3)b[0]++;else if(m<6)b[1]++;else b[2]++;});
   if(ageChartRef)ageChartRef.destroy();
   ageChartRef=new Chart(document.getElementById('ageChart'),{type:'doughnut',data:{labels:['0–3 mo','3–6 mo','6+ mo'],datasets:[{data:b,backgroundColor:['#2f7ed8','#6a3fb5','#8a98a8'],borderColor:'#fff',borderWidth:3}]},options:{maintainAspectRatio:false,cutout:'60%',onClick:(e,els)=>{if(els.length){const i=els[0].index;showCohort('Age band',infants.filter(x=>{const m=parseFloat(x.ageNow);return i===0?m<3:i===1?(m>=3&&m<6):m>=6;}));}},plugins:{legend:{position:'bottom',labels:{boxWidth:11,padding:11}}}}});
+  if(document.getElementById('doseChart')){const d50=infants.filter(i=>i.elig&&i.dose==='50 mg').length,d100=infants.filter(i=>i.elig&&i.dose==='100 mg').length,d200=infants.filter(i=>i.elig&&i.dose==='200 mg').length;
+    if(doseRef)doseRef.destroy();doseRef=new Chart(document.getElementById('doseChart'),{type:'doughnut',data:{labels:['50 mg','100 mg','200 mg'],datasets:[{data:[d50,d100,d200],backgroundColor:['#2aa66a','#2f7ed8','#6a3fb5'],borderColor:'#fff',borderWidth:3}]},options:{maintainAspectRatio:false,cutout:'58%',onClick:(e,els)=>{if(els.length){const dd=['50 mg','100 mg','200 mg'][els[0].index];showCohort('Dose '+dd,infants.filter(i=>i.elig&&i.dose===dd));}},plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:8,font:{size:10}}}}}});}
+  if(document.getElementById('statusChart')){const sc={none:0,booked:0,done:0};infants.forEach(i=>{sc[i.f]=(sc[i.f]||0)+1;});
+    if(statusRef)statusRef.destroy();statusRef=new Chart(document.getElementById('statusChart'),{type:'bar',data:{labels:['Not dosed','Booked','Immunised'],datasets:[{label:'Infants',data:[sc.none,sc.booked,sc.done],backgroundColor:['#e24b4a','#ef9f27','#2aa66a']}]},options:{maintainAspectRatio:false,onClick:(e,els)=>{if(els.length){const fv=['none','booked','done'][els[0].index];showCohort('Status',infants.filter(i=>i.f===fv));}},plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#eef0f4'}}}}});}
+  if(document.getElementById('eligChart')){const eg=infants.filter(i=>i.elig).length,ng=infants.length-eg;
+    if(eligRef)eligRef.destroy();eligRef=new Chart(document.getElementById('eligChart'),{type:'doughnut',data:{labels:['Eligible','Not this season'],datasets:[{data:[eg,ng],backgroundColor:['#2aa66a','#9ca3af'],borderColor:'#fff',borderWidth:3}]},options:{maintainAspectRatio:false,cutout:'58%',onClick:(e,els)=>{if(els.length){showCohort(els[0].index===0?'Eligible':'Not eligible',infants.filter(i=>els[0].index===0?i.elig:!i.elig));}},plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:8,font:{size:10}}}}}});}
   if(document.getElementById('barrierChart')){if(barrierChartRef)barrierChartRef.destroy();barrierChartRef=new Chart(document.getElementById('barrierChart'),{type:'bar',data:{labels:['Mother unaware','Afraid of injection','Too busy / forgot','Travel / distance','Doubts need','Baby unwell'],datasets:[{label:'% of declines',data:[28,22,19,14,10,7],backgroundColor:['#e24b4a','#ef9f27','#2f7ed8','#1d9e9e','#7c4dff','#2aa66a']}]},options:{maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'#eef0f4'}},y:{grid:{display:false}}}}});}
 }
 function showCohort(title,arr){document.getElementById('pmT').textContent=title+' · '+arr.length+' infant'+(arr.length===1?'':'s');
@@ -556,7 +580,7 @@ function renderHuddle(){const q=dueQueue();document.getElementById('rqN').textCo
 function hudPick(id){hudSel=id;const inf=infants[id],A=rsvAlerts(inf);
   document.getElementById('hudPanel').innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:16px;font-weight:800">${inf.en} ${inf.risk.length?'<span class="tag SH">High-risk</span>':''}</div><div style="font-size:11px;color:var(--mu)">${inf.ageNow} mo · ${inf.weight} kg · ${inf.mrn} · ${inf.source}</div></div><button class="btn btn-o btn-xs" onclick="openPat(${inf.id})">Full record →</button></div>
     <div class="vit"><div><div class="v">${inf.score}</div><div class="l">AI risk</div></div><div><div class="v" style="font-size:12px">${inf.elig?'Eligible':'—'}</div><div class="l">Eligibility</div></div><div><div class="v" style="font-size:12px">${inf.dose||'—'}</div><div class="l">Dose</div></div><div><div class="v" style="font-size:12px">${inf.gest} wk</div><div class="l">Gestation</div></div><div><div class="v" style="font-size:11px">${inf.st}</div><div class="l">Status</div></div></div>
-    <div style="font-size:10px;font-weight:700;color:var(--mu);letter-spacing:.05em;margin-bottom:8px">MOTHER · ${inf.mother} · ${inf.phone}</div>
+    <div style="font-size:10px;font-weight:700;color:var(--mu);letter-spacing:.05em;margin-bottom:8px">CAREGIVER (${inf.relation}) · ${inf.mother} · ${inf.phone}</div>
     <div class="ai"><div class="ai-h"><div class="ai-ic">🤖</div><div><div class="ai-t">AI guidance</div><div class="ai-s">rule engine</div></div></div>${A.map(x=>`<div class="flag ${x.s==='r'?'fR2':x.s==='a'?'fY2':'fG2'}">${x.t}</div>`).join('')}</div>
     <div style="display:flex;gap:7px;margin-top:12px;flex-wrap:wrap"><button class="btn btn-g btn-sm" onclick="doseGiven(${inf.id})">💉 Record dose given</button><button class="btn btn-b btn-sm" onclick="addTodo('Call mother — book dose','call','Nurse',${inf.id})">📞 Mother to call</button><button class="btn btn-o btn-sm" onclick="show('messages')">💬 Message mother</button></div>`;
   renderHuddle();}
@@ -585,7 +609,7 @@ function openPat(id){const inf=infants[id],A=rsvAlerts(inf);
    <div class="card cp"><div style="display:flex;gap:14px;align-items:flex-start"><div class="ph-av" style="background:linear-gradient(135deg,#10243f,#2f7ed8)">${inf.en.split(' ').map(x=>x[0]).join('').slice(0,2)}</div>
    <div style="flex:1"><div style="font-size:18px;font-weight:800">${inf.en} ${inf.risk.length?'<span class="tag SH">High-risk</span>':''} ${inf.elig?'<span class="tag S'+inf.season+'">Eligible · Season '+inf.season+'</span>':''}</div>
    <div style="font-size:11px;color:var(--mu);margin-top:3px">${inf.sex==='M'?'Boy':inf.sex==='F'?'Girl':'Infant'} · DOB ${inf.dob} · ${inf.ageNow} mo · ${inf.mrn} · ${inf.source}</div>
-   <div style="font-size:11px;color:var(--mu);margin-top:3px">👩 Mother: ${inf.mother} · ${inf.phone} · <span class="chip ${inf.allergy==='No known allergies'?'ch-g':'ch-r'}">${inf.allergy}</span></div>
+   <div style="font-size:11px;color:var(--mu);margin-top:3px">👤 Caregiver: ${inf.mother} <span class="chip ch-p">${inf.relation}</span> · ${inf.phone} · <span class="chip ${inf.allergy==='No known allergies'?'ch-g':'ch-r'}">${inf.allergy}</span></div>
    <div style="display:flex;gap:7px;margin-top:9px"><button class="btn btn-b btn-sm" onclick="show('messages')">💬 Message mother</button>${inf.f!=='done'?`<button class="btn btn-g btn-sm" onclick="doseGiven(${inf.id});closePat()">💉 Record dose</button>`:''}</div></div></div>
    <div class="vit"><div><div class="v">${inf.weight}</div><div class="l">Weight kg</div></div><div><div class="v">${inf.gest}</div><div class="l">Gestation wk</div></div><div><div class="v" style="font-size:13px">${inf.elig?inf.dose:'—'}</div><div class="l">Nirsevimab</div></div><div><div class="v" style="color:${inf.tier==='High'?'var(--rd)':inf.tier==='Moderate'?'var(--am)':'var(--gr)'}">${inf.score}</div><div class="l">AI risk</div></div><div><div class="v" style="font-size:12px">${inf.st}</div><div class="l">Status</div></div></div></div>
    <div class="g2" style="margin-top:14px"><div class="card cp"><div class="ct" style="margin-bottom:8px">RISK FACTORS</div>${inf.risk.length?inf.risk.map(r=>`<div class="sc"><div class="scd s-ov"></div><b>${HIGHRISK[r]}</b></div>`).join(''):'<div style="font-size:12px;color:var(--mu)">None — term, healthy infant</div>'}</div>
@@ -617,6 +641,7 @@ function renderMessages(){document.getElementById('msgPtList').innerHTML=infants
   document.getElementById('msgTpl').innerHTML='<option value="">Choose template…</option>'+MSG_TPL.map((t,i)=>`<option value="${i}">${t.label}</option>`).join('');
   document.getElementById('tplList').innerHTML=MSG_TPL.map((t,i)=>`<div onclick="pickTpl(${i})" style="border:1px solid var(--bdr);border-radius:9px;padding:10px 12px;margin-bottom:8px;cursor:pointer"><div style="font-size:12px;font-weight:700;color:var(--bl)">${t.label}</div><div class="ar" style="font-size:11px;color:var(--mu);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.ar}</div></div>`).join('');
   document.getElementById('bMsg').textContent=infants.filter(i=>i.elig&&i.f==='none').length;}
+function msgCg(){const v=document.getElementById('msgPt').value,inf=infants.find(x=>v&&(v.includes(x.mrn)||v.includes(x.en)));const el=document.getElementById('msgCgLbl');if(el)el.textContent=inf?('→ to caregiver: '+inf.mother+' ('+inf.relation+') · '+inf.phone):'';}
 function applyTpl(){const i=document.getElementById('msgTpl').value;if(i==='')return;pickTpl(+i);}
 function pickTpl(i){document.getElementById('msgAr').value=MSG_TPL[i].ar;document.getElementById('msgTpl').value=i;}
 function aiMsg(){const v=document.getElementById('msgPt').value,inf=infants.find(x=>v&&(v.includes(x.mrn)||v.includes(x.en)));if(!inf){toast('Pick an infant first');return;}
@@ -662,7 +687,7 @@ function restoreLogo(){try{const lg=localStorage.getItem('rsv_logo');if(lg)apply
 /* ===== Enrol Infant wizard (live RSV AI) ===== */
 const WSTEPS=['Newborn','Risk factors','Immunisation','AI Review'];
 const SOURCES=['Military Hospital Riyadh','Maternity & Children, Riyadh','King Fahad Medical City','Walk-in / referral'];
-const wiz={step:1,name:'',mrn:'',dob:'',sex:'Male',weight:'',gest:'38',source:SOURCES[0],mother:'',phone:'',risk:[],allergy:'No known allergies',hasDose:'no',doseDate:''};
+const wiz={step:1,name:'',mrn:'',dob:'',sex:'Male',weight:'',gest:'38',source:SOURCES[0],relation:'Mother',mother:'',phone:'',risk:[],allergy:'No known allergies',hasDose:'no',doseDate:''};
 function setW(k,v){wiz[k]=v;updateLive();}
 function setWR(k,v){wiz[k]=v;renderWiz();}
 function toggleRisk(k,el){if(el.checked){if(!wiz.risk.includes(k))wiz.risk.push(k);}else{wiz.risk=wiz.risk.filter(x=>x!==k);}updateLive();}
@@ -681,8 +706,8 @@ function renderWiz(){renderStepper();let h='';
     h=`<div class="fsec2">Newborn details</div>
     <div class="g2">${fld('Full name',`<input value="${wiz.name}" oninput="setW('name',this.value)" placeholder="e.g. Faisal Al-Harbi">`)}${fld('MRN / birth ID',`<input value="${wiz.mrn}" oninput="setW('mrn',this.value)" placeholder="MH-XXXXX">`)}</div>
     <div class="g3">${fld('Date of birth',`<input type="date" value="${wiz.dob}" onchange="setW('dob',this.value)">`)}${fld('Sex',`<select onchange="setW('sex',this.value)"><option ${wiz.sex==='Male'?'selected':''}>Male</option><option ${wiz.sex==='Female'?'selected':''}>Female</option></select>`)}${fld('Birth weight (kg)',`<input type="number" step="0.1" value="${wiz.weight}" oninput="setW('weight',this.value)" placeholder="e.g. 4.2">`)}</div>
-    <div class="g3">${fld('Gestational age (wk)',`<select onchange="setW('gest',this.value)">${Array.from({length:11},(_,k)=>30+k).map(n=>`<option ${String(wiz.gest)===String(n)?'selected':''}>${n}</option>`).join('')}</select>`)}${fld('Source / hospital',`<select onchange="setW('source',this.value)">${SOURCES.map(s=>`<option ${wiz.source===s?'selected':''}>${s}</option>`).join('')}</select>`)}<div></div></div>
-    <div class="g2">${fld('Mother name',`<input value="${wiz.mother}" oninput="setW('mother',this.value)" placeholder="e.g. أم فيصل">`)}${fld('Mother phone',`<input value="${wiz.phone}" oninput="setW('phone',this.value)" placeholder="+9665XXXXXXX">`)}</div>`;
+    <div class="g3">${fld('Gestational age (wk)',`<input type="number" min="28" max="42" list="gestList" value="${wiz.gest}" oninput="setW('gest',this.value)" placeholder="type or pick"><datalist id="gestList">${Array.from({length:15},(_,k)=>28+k).map(n=>`<option>${n}</option>`).join('')}</datalist>`)}${fld('Source / hospital',`<select onchange="setW('source',this.value)">${SOURCES.map(s=>`<option ${wiz.source===s?'selected':''}>${s}</option>`).join('')}</select>`)}<div></div></div>
+    <div class="g3">${fld('Caregiver relationship',`<select onchange="setW('relation',this.value)"><option ${wiz.relation==='Mother'?'selected':''}>Mother</option><option ${wiz.relation==='Father'?'selected':''}>Father</option><option ${wiz.relation==='Guardian'?'selected':''}>Guardian</option></select>`)}${fld('Caregiver name',`<input value="${wiz.mother}" oninput="setW('mother',this.value)" placeholder="e.g. أم فيصل / أبو فيصل">`)}${fld('Caregiver phone',`<input value="${wiz.phone}" oninput="setW('phone',this.value)" placeholder="+9665XXXXXXX">`)}</div>`;
   } else if(wiz.step===2){
     h=`<div class="fsec2">Risk factors</div><div style="font-size:11px;color:var(--mu);margin-bottom:8px">High-risk infants are prioritised and may qualify for a second-season dose.</div>
     <div class="med-grid">${Object.keys(HIGHRISK).map(k=>`<label class="med"><input type="checkbox" ${wiz.risk.includes(k)?'checked':''} onchange="toggleRisk('${k}',this)"><div><b>${HIGHRISK[k]}</b></div></label>`).join('')}</div>
@@ -711,8 +736,9 @@ function enrolNow(){
   if(!wiz.name||!wiz.dob||!wiz.weight){toast('Name, DOB and weight required');return;}
   const id=infants.length,w=parseFloat(wiz.weight)||4,a=rsvAssess({dob:wiz.dob,weight:w,gest:parseInt(wiz.gest)||38,risk:wiz.risk});
   const fkey=wiz.hasDose==='done'?'done':wiz.hasDose==='booked'?'booked':'none',sm=statusMap(fkey);
+  const cgName=wiz.mother||((wiz.relation==='Father'?'أبو ':wiz.relation==='Guardian'?'ولي أمر ':'أم ')+wiz.name.split(' ')[0]);
   infants.push({id,n:wiz.name,en:wiz.name,sex:wiz.sex==='Female'?'F':'M',dob:wiz.dob,weight:w,gest:parseInt(wiz.gest)||38,risk:wiz.risk.slice(),
-    mother:wiz.mother||('أم '+wiz.name.split(' ')[0]),phone:wiz.phone||'+9665XXXXXXX',mrn:wiz.mrn||('MH-'+(20500+id)),source:wiz.source,
+    mother:cgName,caregiver:cgName,relation:wiz.relation,phone:wiz.phone||'+9665XXXXXXX',mrn:wiz.mrn||('MH-'+(20500+id)),source:wiz.source,
     f:fkey,st:sm.st,sb:sm.sb,pri:a.elig&&fkey==='none'?'wU':sm.pri,act:sm.act,
     elig:a.elig,basis:a.basis,dose:a.dose,season:a.season,score:a.score,tier:a.tier,ageNow:a.ageNow,disc:[],allergy:wiz.allergy});
   if(a.elig&&fkey==='none')addTodo('Contact mother — book '+a.dose+' nirsevimab','call','Coordinator',id);
