@@ -192,6 +192,7 @@ body{background:var(--bg);display:flex;height:100vh;overflow:hidden;-webkit-font
     <div class="si" data-v="registry"><span class="si-ic">≣</span>Infant Registry<span class="si-b bB" id="bReg">0</span></div>
     <div class="si" data-v="huddle"><span class="si-ic">☀</span>Daily Huddle<span class="si-b bA" id="bHud">0</span></div>
     <div class="si" data-v="tasks"><span class="si-ic">✓</span>Care Tasks<span class="si-b bR" id="bTask">0</span></div>
+    <div class="si" data-v="drive"><span class="si-ic">🎯</span>Coverage Drive<span class="si-b bA" id="bDrive">0</span></div>
     <div class="sb-sec">Engagement</div>
     <div class="si" data-v="bot"><span class="si-ic">🤖</span>Caregiver WhatsApp Bot</div>
     <div class="si" data-v="messages"><span class="si-ic">💬</span>Caregiver Messages<span class="si-b bN" id="bMsg">0</span></div>
@@ -224,6 +225,10 @@ body{background:var(--bg);display:flex;height:100vh;overflow:hidden;-webkit-font
     <div class="kpi" style="--kc:var(--gr)"><div class="kl">Immunised</div><div class="kv" id="kImm">0</div><div class="ks" id="kImmS"></div></div>
     <div class="kpi" style="--kc:var(--rd)" onclick="show('huddle')"><div class="kl">Due before season</div><div class="kv" style="color:var(--rd)" id="kDue">0</div><div class="ks">not yet dosed</div></div>
     <div class="kpi" style="--kc:var(--am)" onclick="show('tasks')"><div class="kl">Caregivers to contact</div><div class="kv" style="color:var(--am)" id="kMom">0</div><div class="ks">outreach pending</div></div>
+  </div>
+  <div class="card cp" onclick="show('drive')" style="cursor:pointer;margin-bottom:14px;border-left:3px solid var(--gr)">
+    <div class="ch"><div><div class="ct">🎯 Coverage target — every Apr–Nov infant dosed before 1 December</div><div class="cs"><b id="dsCovPct">0%</b> of eligible immunised · <b id="dsCovDue">0</b> still due · <b id="dsCovDays">0</b> days left</div></div><button class="btn btn-g btn-xs" onclick="event.stopPropagation();show('drive')">Open Coverage Drive →</button></div>
+    <div style="margin-top:10px;height:12px;background:#eef0f4;border-radius:8px;overflow:hidden"><div id="dsCovBar" style="height:100%;width:0%;background:linear-gradient(90deg,#2aa66a,#2f7ed8);transition:width .5s"></div></div>
   </div>
   <div class="g2" style="margin-bottom:14px">
     <div class="card cp"><div class="ch"><div><div class="ct">Coverage build-up</div><div class="cs">Cumulative infants immunised vs eligible</div></div></div><div style="height:210px"><canvas id="covChart"></canvas></div></div>
@@ -310,6 +315,36 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
     <div class="kpi" style="--kc:var(--gr)"><div class="kl">Completed today</div><div class="kv" style="color:var(--grd)" id="taskDoneN">0</div><div class="ks">resolved</div></div>
   </div>
   <div class="card cp"><div class="ct" style="margin-bottom:3px">Care-team to-do list</div><div class="cs" style="margin-bottom:12px">Caregiver-contact, dosing and follow-up actions — grouped by infant, no duplicates.</div><div id="taskList"></div></div>
+</div>
+
+<!-- COVERAGE DRIVE -->
+<div class="view" id="v-drive">
+  <div class="card cp" style="border-top:3px solid var(--gr);margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px">
+      <div><div class="ct">🎯 Season coverage target — every Apr–Nov infant dosed before 1 December</div><div class="cs">The biggest lever (Galicia, Spain): give the dose <b>before the baby leaves hospital</b> → 92% coverage, ~90% fewer RSV hospitalisations. This board closes the three gaps that lose coverage.</div></div>
+      <button class="btn btn-g btn-sm" onclick="autoBookAll()">⚡ Auto-book all due (opt-out)</button>
+    </div>
+    <div class="krow" style="margin-top:14px">
+      <div class="kpi" style="--kc:var(--gr)"><div class="kl">Coverage now</div><div class="kv" style="color:var(--grd)" id="dvPct">0%</div><div class="ks">of eligible dosed</div></div>
+      <div class="kpi" style="--kc:var(--rd)"><div class="kl">Still to dose</div><div class="kv" style="color:var(--rd)" id="dvDue">0</div><div class="ks">before season</div></div>
+      <div class="kpi" style="--kc:var(--am)"><div class="kl">Days to 1 Dec</div><div class="kv" style="color:var(--am)" id="dvDays">0</div><div class="ks">deadline countdown</div></div>
+      <div class="kpi" style="--kc:var(--bl)"><div class="kl">Hosp. averted</div><div class="kv" style="color:var(--bl)" id="dvAvert">0</div><div class="ks">modelled · Galicia RWE</div></div>
+    </div>
+    <div style="margin-top:12px;height:12px;background:#eef0f4;border-radius:8px;overflow:hidden"><div id="dvBar" style="height:100%;width:0%;background:linear-gradient(90deg,#2aa66a,#2f7ed8);transition:width .5s"></div></div>
+    <div style="font-size:11px;color:var(--mu);margin-top:6px" id="dvBarS"></div>
+  </div>
+  <div class="card cp" style="margin-bottom:14px;border-left:3px solid var(--gr)">
+    <div class="ch"><div><div class="ct">① Birth dose — give before discharge <span id="dvBdN" class="chip ch-g"></span></div><div class="cs">Newborns just delivered — dose now, before they go home. Highest-yield action, no second appointment.</div></div></div>
+    <div id="dvBefore"></div>
+  </div>
+  <div class="card cp" style="margin-bottom:14px;border-left:3px solid var(--bl)">
+    <div class="ch"><div><div class="ct">② Catch-up — co-administer at next routine visit <span id="dvCuN" class="chip ch-b"></span></div><div class="cs">Born Apr–Sep, missed the birth-dose window. Book alongside the routine EPI visit — no extra trip for the family.</div></div><button class="btn btn-o btn-xs" onclick="bookCatchUp()">Book all at EPI visit</button></div>
+    <div id="dvCatch"></div>
+  </div>
+  <div class="card cp" style="border-left:3px solid var(--am)">
+    <div class="ch"><div><div class="ct">③ Recall — booked &amp; declined <span id="dvRcN" class="chip ch-a"></span></div><div class="cs">Day-before reminders to booked infants, and re-approach declines with tailored education from the paediatrician.</div></div><button class="btn btn-o btn-xs" onclick="recallAll()">Send reminders</button></div>
+    <div id="dvRecall"></div>
+  </div>
 </div>
 
 <!-- BOT -->
@@ -488,6 +523,7 @@ enrol:['Enrol Infant','Add a new delivery or manual entry · live AI eligibility
 registry:['Infant Registry','Born since Apr 2026 · caregiver-linked'],
 huddle:['Daily Huddle','Infants due before the RSV season'],
 tasks:['Care Tasks','Caregiver outreach & dosing queue'],
+drive:['Coverage Drive','Close the gaps — birth-dose, catch-up & recall to hit coverage before December'],
 bot:['Caregiver WhatsApp Bot','Arabic conversational outreach to the parent/guardian'],
 messages:['Caregiver Messages','Message the parent/guardian about the infant'],
 barriers:['Barrier Analytics','Why caregivers delay or decline'],
@@ -496,13 +532,13 @@ settings:['Settings','Branding · AI · data feed · residency']};
 function show(v){document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));document.getElementById('v-'+v).classList.add('on');
   document.querySelectorAll('.si').forEach(s=>s.classList.toggle('on',s.dataset.v===v));
   document.getElementById('tbT').textContent=TT[v][0];document.getElementById('tbS').textContent=TT[v][1];
-  document.querySelector('.content').scrollTop=0;if(v==='bot')botRestart();if(v==='enrol')renderWiz();}
+  document.querySelector('.content').scrollTop=0;if(v==='bot')botRestart();if(v==='enrol')renderWiz();if(v==='drive')renderDrive();}
 document.querySelectorAll('.si').forEach(s=>s.onclick=()=>show(s.dataset.v));
 function toast(m,s){const t=document.getElementById('toast');document.getElementById('t-main').textContent=m;document.getElementById('t-sub').textContent=s||'';t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 
 /* ===== Registry ===== */
 function eligChip(inf){return inf.elig?'<span class="chip ch-g">Eligible · S'+inf.season+'</span>':'<span class="chip ch-s">Not this season</span>';}
-function statChip(inf){return `<span class="tag ${inf.sb}">${inf.st}</span>`;}
+function statChip(inf){return inf.declined?'<span class="tag rH">Declined</span>':`<span class="tag ${inf.sb}">${inf.st}</span>`;}
 function riskPill(inf){const c=inf.tier==='High'?'rH':inf.tier==='Moderate'?'rM':'rL';return `<span class="tag ${c}">${inf.score} · ${inf.tier}</span>`;}
 function renderReg(f,btn){
   if(btn){document.querySelectorAll('#regFilters .chip').forEach(c=>{c.className='chip ch-s';});btn.className='chip ch-b';}
@@ -525,8 +561,41 @@ function refreshMetrics(){
   document.getElementById('kpiE')&&(document.getElementById('kpiE').textContent=elig);
   document.getElementById('kpiI')&&(document.getElementById('kpiI').textContent=elig?Math.round(imm/elig*100)+'%':'—');
   document.getElementById('dashPri').innerHTML=dueQueue().slice(0,5).map(inf=>`<div class="rq" onclick="openPat(${inf.id})"><div class="rq-dot s-ov"></div><div style="flex:1"><div class="rq-n">${inf.en} ${inf.risk.length?'<span class="chip ch-r">high-risk</span>':''}</div><div class="rq-d">${inf.ageNow} mo · ${inf.weight} kg · ${inf.mother} · ${inf.act}</div></div>${riskPill(inf)}</div>`).join('')||'<div class="note">No infants due.</div>';
+  updateSeasonTarget();
   drawCharts();
 }
+/* ===== Coverage Drive — closes the 3 coverage gaps ===== */
+function daysToDec1(){return Math.max(0,Math.ceil((new Date('2026-12-01')-TODAY)/86400000));}
+function driveCohorts(){
+  const before=infants.filter(i=>i.elig&&i.f==='none'&&!i.declined&&parseFloat(i.ageNow)<1.5);
+  const catchUp=infants.filter(i=>i.elig&&i.f==='none'&&!i.declined&&parseFloat(i.ageNow)>=1.5);
+  const recall=infants.filter(i=>i.f==='booked'||i.declined);
+  return {before,catchUp,recall};}
+function driveRow(inf,actions){return `<div class="rq"><div class="rq-dot ${inf.declined?'s-ov':inf.f==='booked'?'s-due':'s-ov'}"></div><div style="flex:1;cursor:pointer" onclick="openPat(${inf.id})"><div class="rq-n">${inf.en} ${inf.risk.length?'<span class="chip ch-r">high-risk</span>':''} ${inf.declined?'<span class="chip ch-r">declined</span>':inf.f==='booked'?'<span class="chip ch-a">booked</span>':''}</div><div class="rq-d">${inf.ageNow} mo · ${inf.weight} kg · ${inf.elig?inf.dose:'—'} · ${inf.mother} (${inf.relation})</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">${actions}</div></div>`;}
+function renderDrive(){
+  const c=driveCohorts();
+  const bd=document.getElementById('dvBefore');if(!bd)return;
+  bd.innerHTML=c.before.length?c.before.map(i=>driveRow(i,`<button class="btn btn-g btn-xs" onclick="doseGiven(${i.id});renderDrive()">💉 Dose now</button><button class="btn btn-o btn-xs" onclick="declineDose(${i.id})">Decline</button>`)).join(''):'<div class="note">No newborns awaiting a birth dose. 🎉</div>';
+  document.getElementById('dvCatch').innerHTML=c.catchUp.length?c.catchUp.map(i=>driveRow(i,`<button class="btn btn-b btn-xs" onclick="bookInfant(${i.id});renderDrive()">📅 Book</button><button class="btn btn-o btn-xs" onclick="messageInfant(${i.id})">💬 Message</button><button class="btn btn-o btn-xs" onclick="declineDose(${i.id})">Decline</button>`)).join(''):'<div class="note">No catch-up infants pending.</div>';
+  document.getElementById('dvRecall').innerHTML=c.recall.length?c.recall.map(i=>driveRow(i,i.declined?`<button class="btn btn-b btn-xs" onclick="messageInfant(${i.id})">💬 Re-approach</button><button class="btn btn-g btn-xs" onclick="bookInfant(${i.id});renderDrive()">📅 Book</button>`:`<button class="btn btn-o btn-xs" onclick="remindInfant(${i.id})">🔔 Remind</button><button class="btn btn-g btn-xs" onclick="doseGiven(${i.id});renderDrive()">💉 Dosed</button>`)).join(''):'<div class="note">Nothing to recall.</div>';
+  document.getElementById('dvBdN').textContent=c.before.length;document.getElementById('dvCuN').textContent=c.catchUp.length;document.getElementById('dvRcN').textContent=c.recall.length;
+  updateSeasonTarget();}
+function updateSeasonTarget(){
+  const elig=infants.filter(i=>i.elig).length,imm=infants.filter(i=>i.f==='done').length,due=infants.filter(i=>i.elig&&i.f!=='done').length;
+  const pct=elig?Math.round(imm/elig*100):0,avert=(imm*0.0164).toFixed(1);
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('dvPct',pct+'%');set('dvDue',due);set('dvDays',daysToDec1());set('dvAvert',avert);
+  set('dvBarS',imm+' of '+elig+' eligible infants immunised · target 90% before 1 Dec');
+  const bar=document.getElementById('dvBar');if(bar)bar.style.width=pct+'%';
+  set('dsCovPct',pct+'%');set('dsCovDue',due);set('dsCovDays',daysToDec1());
+  const db=document.getElementById('dsCovBar');if(db)db.style.width=pct+'%';
+  const c=driveCohorts();set('bDrive',c.before.length+c.catchUp.length);}
+function autoBookAll(){let n=0;infants.forEach(i=>{if(i.elig&&i.f==='none'&&!i.declined){i.f='booked';const sm=statusMap('booked');i.st=sm.st;i.sb=sm.sb;i.pri=sm.pri;i.act=sm.act;addTodo('Send reminder to caregiver','dose','Coordinator',i.id);n++;}});renderReg();refreshMetrics();renderHuddle();renderDrive();toast('Auto-booked '+n+' infants (opt-out)','Reminders queued · caregivers can reschedule');}
+function bookCatchUp(){let n=0;driveCohorts().catchUp.forEach(i=>{i.f='booked';const sm=statusMap('booked');i.st=sm.st;i.sb=sm.sb;i.pri=sm.pri;i.act='Co-administer at next EPI visit';addTodo('Book at next EPI visit (co-administer)','dose','Nurse',i.id);n++;});renderReg();refreshMetrics();renderDrive();toast('Booked '+n+' at next EPI visit','Co-administration scheduled — no extra trip');}
+function bookInfant(id){const i=infants[id];i.f='booked';i.declined=false;const sm=statusMap('booked');i.st=sm.st;i.sb=sm.sb;i.pri=sm.pri;i.act=sm.act;addTodo('Send reminder to caregiver','dose','Coordinator',id);renderReg();refreshMetrics();toast('Appointment booked ✓',i.en);}
+function declineDose(id){const i=infants[id];i.declined=true;i.act='Declined — re-approach';i.contacts=i.contacts||[];i.contacts.unshift({type:'Caregiver declined',date:'Today',status:'Open',by:'Coordinator'});barrierLog.unshift({pid:id,label:'Caregiver declined — needs counselling',date:'Today',task:'Re-approach with tailored education',edu:'Safety & benefits'});addTodo('Re-approach decline with education','call','Paediatrician',id);renderBarriers();renderReg();refreshMetrics();renderDrive();toast('Decline logged',i.en+' · routed to re-approach');}
+function remindInfant(id){const i=infants[id];addTodo('Day-before reminder sent','dose','Coordinator',id);toast('Reminder sent ✓',i.mother+' ('+i.relation+')');}
+function recallAll(){let n=0;driveCohorts().recall.forEach(i=>{if(i.f==='booked'){addTodo('Day-before reminder','dose','Coordinator',i.id);n++;}});refreshMetrics();toast('Reminders sent to '+n+' booked infants','Day-before WhatsApp queued');}
 function drawCharts(){
   const elig=infants.filter(i=>i.elig).length,imm=infants.filter(i=>i.f==='done').length;
   // coverage build-up (synthetic weekly)
@@ -779,7 +848,7 @@ function enrolNow(){
   Object.assign(wiz,{step:1,name:'',mrn:'',dob:'',weight:'',mother:'',phone:'',risk:[],hasDose:'no',doseDate:''});renderWiz();show('registry');}
 
 /* ===== init ===== */
-renderReg();refreshMetrics();renderHuddle();renderTasks();renderMessages();renderBarriers();renderKB();botRestart();renderWiz();restoreSession();restoreLogo();
+renderReg();refreshMetrics();renderHuddle();renderTasks();renderMessages();renderBarriers();renderKB();botRestart();renderWiz();renderDrive();restoreSession();restoreLogo();
 </script>
 </body>
 </html>
