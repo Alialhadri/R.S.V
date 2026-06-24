@@ -348,9 +348,13 @@ Layan Al-Otaibi, MH-10232, 2026-04-28, 5.1, +9665XXXXXXX"></textarea>
     <div class="ch"><div><div class="ct">② Catch-up — co-administer at next routine visit <span id="dvCuN" class="chip ch-b"></span></div><div class="cs">Born Apr–Sep, missed the birth-dose window. Book alongside the routine EPI visit — no extra trip for the family.</div></div><button class="btn btn-o btn-xs" onclick="bookCatchUp()">Book all at EPI visit</button></div>
     <div id="dvCatch"></div>
   </div>
-  <div class="card cp" style="border-left:3px solid var(--am)">
+  <div class="card cp" style="margin-bottom:14px;border-left:3px solid var(--am)">
     <div class="ch"><div><div class="ct">③ Recall — booked, overdue &amp; declined <span id="dvRcN" class="chip ch-a"></span></div><div class="cs">Auto reminders 3 &amp; 2 days before the visit; overdue infants surface here from the dashboard; declines are re-approached with paediatrician-led education.</div></div><button class="btn btn-o btn-xs" onclick="recallAll()">Send reminders</button></div>
     <div id="dvRecall"></div>
+  </div>
+  <div class="card cp" style="border-left:3px solid var(--pu,#6a3fb5)">
+    <div class="ch"><div><div class="ct">④ Second season — high-risk 8–19 mo (200 mg) <span id="dvS2N" class="chip ch-b"></span></div><div class="cs">High-risk children from last season need a single 200 mg dose for their second RSV season. Completing this group is the other place coverage leaks.</div></div></div>
+    <div id="dvSeason2"></div>
   </div>
 </div>
 
@@ -531,6 +535,17 @@ function makeInfant(i){
     elig:a.elig,basis:a.basis,dose:a.dose,season:a.season,score:a.score,tier:a.tier,ageNow:a.ageNow,disc:[],allergy:ch(.1)?'—':'No known allergies'};
 }
 for(let i=0;i<50;i++)infants.push(makeInfant(i));
+/* Second-season high-risk children (8–19 mo · 200 mg) — prior-season cohort */
+[['2025-03-15','chd'],['2025-05-20','cld'],['2025-07-10','prem'],['2025-09-05','immuno']].forEach((d,k)=>{
+  const id=infants.length,dob=d[0],risk=[d[1]],sex=k%2?'F':'M',fn=pk(sex==='M'?FN_M:FN_F),ln=pk(LN);
+  const a=rsvAssess({dob,weight:8+k,gest:38,risk}),cg=pk(ADULT_F),mother=cg[1]+' '+ln[1];
+  infants.push({id,n:fn[0]+' '+ln[0],en:fn[1]+' '+ln[1],sex,dob,weight:8+k,gest:38,risk,
+    mother,caregiver:mother,relation:'Mother',phone:'+9665'+(30000000+k*111111),
+    mrn:'MH-'+(10800+id),source:'Military Hospital Riyadh',
+    contacts:[{type:'Prior-season high-risk record',date:dob,status:'Done',by:'Registry'}],
+    f:'none',st:'Not dosed',sb:'rH',pri:'wU',act:'Book second-season 200 mg dose',
+    elig:a.elig,basis:a.basis,dose:a.dose,season:a.season,score:a.score,tier:a.tier,ageNow:a.ageNow,disc:[],allergy:'No known allergies',declined:false});
+});
 
 /* ===== Nav ===== */
 const TT={dash:['Dashboard','RSV infant immunisation · nirsevimab (Beyfortus) · Riyadh'],
@@ -646,9 +661,10 @@ function coverageReport(){
 function daysToDec1(){return Math.max(0,Math.ceil((new Date('2026-12-01')-TODAY)/86400000));}
 function driveCohorts(){
   const before=infants.filter(i=>i.elig&&i.f==='none'&&!i.declined&&parseFloat(i.ageNow)<1.5);
-  const catchUp=infants.filter(i=>i.elig&&i.f==='none'&&!i.declined&&parseFloat(i.ageNow)>=1.5);
+  const catchUp=infants.filter(i=>i.elig&&i.f==='none'&&!i.declined&&i.season!==2&&parseFloat(i.ageNow)>=1.5);
   const recall=infants.filter(i=>i.f==='booked'||i.declined);
-  return {before,catchUp,recall};}
+  const season2=infants.filter(i=>i.season===2&&i.f!=='done');
+  return {before,catchUp,recall,season2};}
 function driveRow(inf,actions){return `<div class="rq"><div class="rq-dot ${inf.declined?'s-ov':inf.f==='booked'?'s-due':'s-ov'}"></div><div style="flex:1;cursor:pointer" onclick="openPat(${inf.id})"><div class="rq-n">${inf.en} ${inf.risk.length?'<span class="chip ch-r">high-risk</span>':''} ${inf.declined?'<span class="chip ch-r">declined</span>':inf.f==='booked'?'<span class="chip ch-a">booked</span>':''}</div><div class="rq-d">${inf.ageNow} mo · ${inf.weight} kg · ${inf.elig?inf.dose:'—'} · ${inf.mother} (${inf.relation})</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">${actions}</div></div>`;}
 function renderDrive(){
   renderPlaybook();renderAnte();
@@ -657,7 +673,10 @@ function renderDrive(){
   bd.innerHTML=c.before.length?c.before.map(i=>driveRow(i,`<button class="btn btn-g btn-xs" onclick="doseGiven(${i.id});renderDrive()">💉 Dose now</button><button class="btn btn-o btn-xs" onclick="declineDose(${i.id})">Decline</button>`)).join(''):'<div class="note">No newborns awaiting a birth dose. 🎉</div>';
   document.getElementById('dvCatch').innerHTML=c.catchUp.length?c.catchUp.map(i=>{const e=nextEPI(i.dob);return driveRow(i,`<span style="font-size:10px;color:var(--bl);background:var(--bll,#eaf2fc);padding:3px 7px;border-radius:6px">next EPI visit ~ ${e.date} (${e.months}-mo)</span><button class="btn btn-b btn-xs" onclick="bookInfant(${i.id});renderDrive()">📅 Book at visit</button><button class="btn btn-o btn-xs" onclick="messageInfant(${i.id})">💬 Call/message</button><button class="btn btn-o btn-xs" onclick="declineDose(${i.id})">Decline</button>`);}).join(''):'<div class="note">No catch-up infants pending.</div>';
   document.getElementById('dvRecall').innerHTML=c.recall.length?c.recall.map(i=>driveRow(i,i.declined?`<button class="btn btn-b btn-xs" onclick="messageInfant(${i.id})">💬 Re-approach</button><button class="btn btn-g btn-xs" onclick="bookInfant(${i.id});renderDrive()">📅 Book</button>`:`<button class="btn btn-o btn-xs" onclick="remindInfant(${i.id})">🔔 Remind</button><button class="btn btn-g btn-xs" onclick="doseGiven(${i.id});renderDrive()">💉 Dosed</button>`)).join(''):'<div class="note">Nothing to recall.</div>';
+  const s2=document.getElementById('dvSeason2');
+  if(s2)s2.innerHTML=c.season2.length?c.season2.map(i=>driveRow(i,`<button class="btn btn-g btn-xs" onclick="doseGiven(${i.id});renderDrive()">💉 Give 200 mg</button><button class="btn btn-b btn-xs" onclick="bookInfant(${i.id});renderDrive()">📅 Book</button><button class="btn btn-o btn-xs" onclick="messageInfant(${i.id})">💬 Message</button>`)).join(''):'<div class="note">No second-season high-risk children pending. 🎉</div>';
   document.getElementById('dvBdN').textContent=c.before.length;document.getElementById('dvCuN').textContent=c.catchUp.length;document.getElementById('dvRcN').textContent=c.recall.length;
+  const s2n=document.getElementById('dvS2N');if(s2n)s2n.textContent=c.season2.length;
   updateSeasonTarget();}
 function updateSeasonTarget(){
   const elig=infants.filter(i=>i.elig).length,imm=infants.filter(i=>i.f==='done').length,due=infants.filter(i=>i.elig&&i.f!=='done').length;
