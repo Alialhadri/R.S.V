@@ -549,13 +549,21 @@ function showCohort(title,arr){document.getElementById('pmT').textContent=title+
   document.getElementById('patModal').classList.add('open');}
 
 /* ===== Birth import (flagship) ===== */
-const DEMO_BATCH=`Faisal Al-Harbi, MH-20300, 2026-05-18, 4.3, +9665 1122334
-Layan Al-Otaibi, MH-20301, 2026-04-22, 5.4, +9665 2233445
-Mohammed Al-Qahtani, MH-20302, 2026-06-02, 3.1, +9665 3344556
-Jouri Al-Shammari, MH-20303, 2026-05-30, 4.9, +9665 4455667
-Abdullah Al-Dosari, MH-20304, 2026-04-10, 5.8, +9665 5566778
-Mira Al-Ghamdi, MH-20305, 2026-06-09, 2.9, +9665 6677889`;
-function loadDemoBatch(){document.getElementById('impBox').value=DEMO_BATCH;toast('Demo batch loaded','Now press Process');}
+const DEMO_NAMES=['Faisal Al-Harbi','Layan Al-Otaibi','Mohammed Al-Qahtani','Jouri Al-Shammari','Abdullah Al-Dosari','Mira Al-Ghamdi','Sultan Al-Mutairi','Reema Al-Zahrani','Nasser Al-Otaibi','Dana Al-Qahtani','Turki Al-Dosari','Shahd Al-Harbi'];
+let demoSeq=0;
+function loadDemoBatch(){
+  const base=30000+demoSeq*10;demoSeq++;
+  const used={};const lines=[];
+  for(let k=0;k<6;k++){
+    let nm;do{nm=DEMO_NAMES[Math.floor(Math.random()*DEMO_NAMES.length)];}while(used[nm]&&Object.keys(used).length<DEMO_NAMES.length);used[nm]=1;
+    const mrn='MH-'+(base+k);
+    const mo=4+Math.floor(Math.random()*2);const dy=1+Math.floor(Math.random()*27);
+    const dob='2026-'+String(mo).padStart(2,'0')+'-'+String(dy).padStart(2,'0');
+    const wt=(2.6+Math.random()*3.4).toFixed(1);
+    const ph='+9665 '+(1000000+Math.floor(Math.random()*8999999));
+    lines.push(nm+', '+mrn+', '+dob+', '+wt+', '+ph);
+  }
+  document.getElementById('impBox').value=lines.join('\n');toast('Fresh demo batch loaded ✓','6 new births · press Process to add');}
 function processImport(){
   const lines=document.getElementById('impBox').value.split('\n').map(l=>l.trim()).filter(Boolean);
   if(!lines.length){toast('Paste birth records or load the demo batch');return;}
@@ -692,7 +700,7 @@ function tm(){const d=new Date();return d.getHours()+':'+String(d.getMinutes()).
 function add(t,w){const m=document.createElement('div');m.className='msg '+w;m.innerHTML=t+'<span class="tm">'+tm()+'</span>';chat.appendChild(m);chat.scrollTop=chat.scrollHeight;}
 function setOpts(a){opts.innerHTML='';a.forEach(o=>{const b=document.createElement('button');b.textContent=o.t;b.onclick=()=>{add(o.t,'user');opts.innerHTML='';setTimeout(o.go,400);};opts.appendChild(b);});}
 function typing(cb){const m=document.createElement('div');m.className='msg bot';m.textContent='…';chat.appendChild(m);chat.scrollTop=chat.scrollHeight;setTimeout(()=>{m.remove();cb();},460);}
-const B={start(){chat.innerHTML='';typing(()=>{add('السلام عليكم 👋 معك مساعد جسور لتطعيم الأطفال بالتعاون مع Sanofi.','bot');typing(()=>{add('مبروك ما جاكم 🎉🤍 ألف مبروك المولود! وصلنا خبر قدومه ونتمنى له الصحة والعافية. هل ترغبون بحماية طفلكم من الفيروس المخلوي التنفسي (RSV) قبل بداية الموسم؟','bot');setOpts([{t:'الله يبارك فيكم، أخبروني أكثر',go:B.info},{t:'ما هو هذا الفيروس؟',go:()=>B.kb(0)}]);});});},
+const B={start(){chat.innerHTML='';typing(()=>{add('السلام عليكم 👋 معك مساعد جسور لتطعيم الأطفال بالتعاون مع Sanofi.','bot');typing(()=>{add('مبروك ما جاكم 🎉🤍 ألف مبروك المولود! وصلنا خبر قدومه ونتمنى له الصحة والعافية. هل ترغبون بحماية طفلكم من الفيروس المخلوي التنفسي (RSV) قبل بداية الموسم؟','bot');setOpts([{t:'نعم، أريد حماية طفلي 🤍',go:B.info},{t:'ما هو الفيروس المخلوي (RSV)؟',go:()=>B.kb(0)},{t:'هل التطعيم آمن؟',go:()=>B.kb(4)}]);});});},
  info(){typing(()=>{add('جرعة واحدة من نيرسيفيماب تحمي طفلكم طوال الموسم. هل عمر طفلكم أقل من 8 أشهر؟','bot');setOpts([{t:'نعم',go:B.elig},{t:'لا / غير متأكدة',go:B.unsure}]);});},
  elig(){typing(()=>{add('ممتاز ✅ طفلكم مؤهل. نحدد الجرعة حسب وزنه ونحجز لكم موعداً قبل الموسم. هل تريدون الحجز؟','bot');setOpts([{t:'نعم، احجزوا لي',go:B.book},{t:'عندي سؤال',go:B.faq}]);});},
  unsure(){typing(()=>{add('لا مشكلة 🤍 سيتواصل معكم منسق المركز لتحديد الأهلية المناسبة لعمر طفلكم.','bot');botTask('Verify eligibility — mother unsure of age');setOpts([{t:'حسناً، شكراً',go:B.end}]);});},
@@ -734,7 +742,7 @@ function renderWiz(){renderStepper();let h='';
   } else if(wiz.step===2){
     h=`<div class="fsec2">Risk factors</div><div style="font-size:11px;color:var(--mu);margin-bottom:8px">High-risk infants are prioritised and may qualify for a second-season dose.</div>
     <div class="med-grid">${Object.keys(HIGHRISK).map(k=>`<label class="med"><input type="checkbox" ${wiz.risk.includes(k)?'checked':''} onchange="toggleRisk('${k}',this)"><div><b>${HIGHRISK[k]}</b></div></label>`).join('')}</div>
-    <div class="g2" style="margin-top:12px">${fld('Allergy',`<select onchange="setW('allergy',this.value)"><option>No known allergies</option><option>Egg</option><option>Latex</option><option>Previous reaction</option></select>`)}<div></div></div>`;
+    <div class="g2" style="margin-top:12px">${fld('Allergy / precaution',`<select onchange="setW('allergy',this.value)">${['No known allergies','Egg','Latex','Cow\'s milk protein','Soy','Penicillin','Sulfa','Previous vaccine reaction','Bleeding / clotting disorder','Other / under review'].map(o=>`<option ${wiz.allergy===o?'selected':''}>${o}</option>`).join('')}</select>`)}<div></div></div>`;
   } else if(wiz.step===3){
     h=`<div class="fsec2">Immunisation status</div>
     <div class="g2">${fld('Received nirsevimab?',`<select onchange="setWR('hasDose',this.value)"><option value="no" ${wiz.hasDose==='no'?'selected':''}>No — not given</option><option value="booked" ${wiz.hasDose==='booked'?'selected':''}>Appointment booked</option><option value="done" ${wiz.hasDose==='done'?'selected':''}>Given</option></select>`)}${wiz.hasDose==='done'?fld('Date given',`<input type="date" value="${wiz.doseDate}" onchange="setW('doseDate',this.value)">`):'<div></div>'}</div>
